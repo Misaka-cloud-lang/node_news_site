@@ -1,0 +1,61 @@
+/* 通用样式 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* 导航栏 */
+.navbar {
+    margin-bottom: 20px;
+}
+
+/* 轮播图 */
+.carousel-item img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+}
+
+/* 广告位样式 */
+.advertisement {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 新闻分类 */
+h4 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.btn-outline-primary, .btn-outline-success, .btn-outline-danger, .btn-outline-warning,
+.btn-outline-info, .btn-outline-dark, .btn-outline-secondary {
+    margin-bottom: 10px;
+}
+
+/* 底部 */
+footer {
+    background-color: #f8f9fa;
+    padding: 20px;
+    text-align: center;
+}
+
+/* 浮动广告样式 */
+.floating-ad {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+/* 弹出广告的样式 */
+.popup-ad {
+    text-decoration: underline;
+    color: blue;
+    font-size: 16px;
+}
+
+/* 其他样式可以根据需要定制 */
