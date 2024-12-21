@@ -58,19 +58,19 @@ public class NewsServlet extends HttpServlet {
             if (!headerAds.isEmpty()) {
                 request.setAttribute("headerAd", getRandomAd(headerAds));
             }
-            
+
             // 侧边栏广告（浮动或弹窗）
             List<Advertisement> sidebarAds = adDAO.getAdsByType("FLOATING");
             if (!sidebarAds.isEmpty()) {
                 request.setAttribute("sidebarAd", getRandomAd(sidebarAds));
             }
-            
+
             // 内容区广告
             List<Advertisement> contentAds = adDAO.getAdsByType("LARGE_IMAGE");
             if (!contentAds.isEmpty()) {
                 request.setAttribute("contentAd", getRandomAd(contentAds));
             }
-            
+
             // 底部广告
             List<Advertisement> footerAds = adDAO.getAdsByType("SCROLL_TEXT");
             if (!footerAds.isEmpty()) {
@@ -99,16 +99,16 @@ public class NewsServlet extends HttpServlet {
             if (queryKeyword != null && !queryKeyword.isEmpty()) {
                 System.out.println("开始搜索，关键词: " + queryKeyword);
                 newsList = newsDao.searchNews(queryKeyword);
-                
+
                 // 打印搜索结果
                 System.out.println("搜索完成，找到 " + (newsList != null ? newsList.size() : 0) + " 条结果");
                 if (newsList != null && !newsList.isEmpty()) {
                     System.out.println("第一条结果: " + newsList.get(0).getTitle());
                 }
-                
+
                 request.setAttribute("query", queryKeyword);
                 request.setAttribute("newsList", newsList);
-                
+
                 System.out.println("准备转发到搜索结果页面...");
                 request.getRequestDispatcher("/pages/searchResults.jsp").forward(request, response);
                 System.out.println("转发完成");

@@ -17,26 +17,39 @@ public class NewsDAO {
     }
 
     // 添加新闻
-    public void addNews(News news) throws SQLException {
+    public boolean addNews(News news) {
         String sql = "INSERT INTO news (title, description, category, image, author, source, " +
-                     "tags, summary, content_html, related_images, is_top, status) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                     "tags, summary, content_html, related_images, is_top, status, publish_time) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = dbConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, news.getTitle());
-            pstmt.setString(2, news.getDescription());
-            pstmt.setString(3, news.getCategory());
-            pstmt.setString(4, news.getImage());
-            pstmt.setString(5, news.getAuthor());
-            pstmt.setString(6, news.getSource());
-            pstmt.setString(7, news.getTags());
-            pstmt.setString(8, news.getSummary());
-            pstmt.setString(9, news.getContentHtml());
-            pstmt.setString(10, news.getRelatedImages());
-            pstmt.setBoolean(11, news.isTop());
-            pstmt.setString(12, news.getStatus());
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            pstmt.executeUpdate();
+            stmt.setString(1, news.getTitle());
+            stmt.setString(2, news.getDescription());
+            stmt.setString(3, news.getCategory());
+            stmt.setString(4, news.getImage());
+            stmt.setString(5, news.getAuthor());
+            stmt.setString(6, news.getSource());
+            stmt.setString(7, news.getTags());
+            stmt.setString(8, news.getSummary());
+            stmt.setString(9, news.getContentHtml());
+            stmt.setString(10, news.getRelatedImages());
+            stmt.setBoolean(11, news.isTop());
+            stmt.setString(12, news.getStatus());
+            
+            // 处理时间戳转换
+            java.util.Date publishDate = news.getPublishTime();
+            if (publishDate != null) {
+                stmt.setTimestamp(13, new java.sql.Timestamp(publishDate.getTime()));
+            } else {
+                stmt.setTimestamp(13, new java.sql.Timestamp(System.currentTimeMillis()));
+            }
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -216,22 +229,33 @@ public class NewsDAO {
     // 根据分类获取新闻
     public List<News> getNewsByCategory(String category) throws SQLException {
         List<News> newsList = new ArrayList<>();
-        String sql = "SELECT * FROM news WHERE category = ? ORDER BY id DESC";
+        String sql = "SELECT * FROM news WHERE category = ? ORDER BY is_top DESC, publish_time DESC";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, category);
             
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    News news = new News(
-                        rs.getInt("id"),
-                        rs.getString("title"),
-                        rs.getString("description"),
-                        rs.getString("category"),
-                        rs.getString("image")
-                    );
+                    News news = new News();
+                    news.setId(rs.getInt("id"));
+                    news.setTitle(rs.getString("title"));
+                    news.setDescription(rs.getString("description"));
+                    news.setCategory(rs.getString("category"));
+                    news.setImage(rs.getString("image"));
+                    news.setAuthor(rs.getString("author"));
+                    news.setSource(rs.getString("source"));
+                    news.setPublishTime(rs.getTimestamp("publish_time"));
+                    news.setUpdateTime(rs.getTimestamp("update_time"));
+                    news.setViews(rs.getInt("views"));
+                    news.setLikes(rs.getInt("likes"));
+                    news.setTags(rs.getString("tags"));
+                    news.setSummary(rs.getString("summary"));
+                    news.setContentHtml(rs.getString("content_html"));
+                    news.setRelatedImages(rs.getString("related_images"));
+                    news.setTop(rs.getBoolean("is_top"));
+                    news.setStatus(rs.getString("status"));
                     newsList.add(news);
                 }
             }
@@ -243,7 +267,7 @@ public class NewsDAO {
     public int getNewsTotalByCategory(String category) throws SQLException {
         String sql = "SELECT COUNT(*) as total FROM news WHERE category = ?";
         
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, category);
@@ -259,7 +283,7 @@ public class NewsDAO {
 
     public void deleteAllNews() throws SQLException {
         String sql = "DELETE FROM news";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.executeUpdate();
             System.out.println("数据库新闻已清空");
@@ -271,7 +295,7 @@ public class NewsDAO {
         String countSql = "SELECT COUNT(*) as total FROM news";
         int totalCount = 0;
         
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(countSql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
@@ -282,7 +306,7 @@ public class NewsDAO {
         if (totalCount > 0) {
             // 删除较旧的一半新闻（ID较小的）
             String deleteSql = "DELETE FROM news WHERE id IN (SELECT id FROM news ORDER BY id ASC LIMIT ?)";
-            try (Connection conn = DBConnection.getConnection();
+            try (Connection conn = dbConnection.getConnection();
                  PreparedStatement ps = conn.prepareStatement(deleteSql)) {
                 int halfCount = totalCount / 2;
                 ps.setInt(1, halfCount);
@@ -292,54 +316,81 @@ public class NewsDAO {
         }
     }
 
-    // 删除没有图片或使用默认图片���新闻
+    // 删除没有图片或使用默认图片的新闻
     public void deleteNewsWithoutImages() throws SQLException {
-        String sql = "DELETE FROM news WHERE image = '/images/default.jpg'";
+        String sql = "DELETE FROM news WHERE " +
+                     "image IS NULL OR " +                    // 空值
+                     "image = '' OR " +                       // 空字符串
+                     "image = 'null' OR " +                   // 字符串'null'
+                     "(image NOT LIKE 'http://%' AND " +      // 不是以http://开头
+                     "image NOT LIKE 'https://%')";           // 不是以https://开头
         
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             int deletedCount = ps.executeUpdate();
-            System.out.println("成功删除 " + deletedCount + " 条默认图片的新闻");
+            System.out.println("成功删除 " + deletedCount + " 条非HTTP图片的新闻");
         }
     }
 
-    // 查询使用默认图片的新闻
+    // 查询将要删除的新闻（用于预览）
     public List<News> getNewsWithDefaultImages() throws SQLException {
         List<News> newsList = new ArrayList<>();
-        String sql = "SELECT * FROM news WHERE image IS NULL OR image = '' OR image = '../images/default.jpg'";
+        String sql = "SELECT * FROM news WHERE " +
+                     "image IS NULL OR " +
+                     "image = '' OR " +
+                     "image = 'null' OR " +
+                     "(image NOT LIKE 'http://%' AND " +
+                     "image NOT LIKE 'https://%')";
         
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
         
             while (rs.next()) {
-                News news = new News(
-                    rs.getInt("id"),
-                    rs.getString("title"),
-                    rs.getString("description"),
-                    rs.getString("category"),
-                    rs.getString("image")
-                );
+                News news = new News();
+                news.setId(rs.getInt("id"));
+                news.setTitle(rs.getString("title"));
+                news.setDescription(rs.getString("description"));
+                news.setCategory(rs.getString("category"));
+                news.setImage(rs.getString("image"));
+                news.setAuthor(rs.getString("author"));
+                news.setSource(rs.getString("source"));
+                news.setPublishTime(rs.getTimestamp("publish_time"));
+                news.setUpdateTime(rs.getTimestamp("update_time"));
+                news.setViews(rs.getInt("views"));
+                news.setLikes(rs.getInt("likes"));
+                news.setTags(rs.getString("tags"));
+                news.setSummary(rs.getString("summary"));
+                news.setContentHtml(rs.getString("content_html"));
+                news.setRelatedImages(rs.getString("related_images"));
+                news.setTop(rs.getBoolean("is_top"));
+                news.setStatus(rs.getString("status"));
                 newsList.add(news);
             }
         }
-        System.out.println("找到 " + newsList.size() + " 条使用默认图片的新闻");
+        System.out.println("找到 " + newsList.size() + " 条非HTTP图片的新闻");
         return newsList;
     }
 
-    // 可以先用这个方法查看有哪些图片路径
+    // 打印所有图片路径（用于检查）
     public void printAllImagePaths() throws SQLException {
-        String sql = "SELECT DISTINCT image FROM news ORDER BY image";
+        String sql = "SELECT id, title, image FROM news ORDER BY id";
         
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
         
-            System.out.println("所有图片路径：");
+            System.out.println("\n所有新闻图片路径：");
+            System.out.println("ID\t图片路径\t标题");
+            System.out.println("----------------------------------------");
             while (rs.next()) {
-                String imagePath = rs.getString("image");
-                System.out.println(imagePath);
+                System.out.println(
+                    rs.getInt("id") + "\t" +
+                    rs.getString("image") + "\t" +
+                    rs.getString("title")
+                );
             }
+            System.out.println("----------------------------------------\n");
         }
     }
 
@@ -395,5 +446,30 @@ public class NewsDAO {
             }
         }
         return newsList;
+    }
+
+    public void deleteExcessNewsByCategory(String category, int keepCount) throws SQLException {
+        String sql = "DELETE n1 FROM news n1 " +
+                     "LEFT JOIN (SELECT id FROM news WHERE category = ? " +
+                     "ORDER BY publish_time DESC LIMIT ?) n2 " +
+                     "ON n1.id = n2.id " +
+                     "WHERE n1.category = ? AND n2.id IS NULL";
+                     
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, category);
+            ps.setInt(2, keepCount);
+            ps.setString(3, category);
+            ps.executeUpdate();
+        }
+    }
+
+    public void truncateNewsTable() throws SQLException {
+        String sql = "TRUNCATE TABLE news";
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.executeUpdate();
+            System.out.println("新闻表已清空");
+        }
     }
 }

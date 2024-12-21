@@ -3,6 +3,11 @@
 <%@ page import="com.example.news_site.model.News" %>
 <%@ page import="java.util.List" %>
 
+<!-- 在页面顶部创建 NewsService 实例 -->
+<%
+    NewsService newsService = new NewsService();
+%>
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -73,74 +78,96 @@
         <!-- 新闻详情部分 -->
         <div class="col-md-9">
             <%
-                String newsId = request.getParameter("id");
-                if (newsId != null && !newsId.isEmpty()) {
-                    NewsService newsService = new NewsService();
-                    News news = newsService.getNewsById(Integer.parseInt(newsId));
-                    
-                    if (news != null) {
+                News news = (News) request.getAttribute("news");
+                if (news != null) {
             %>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="../index.jsp">首页</a></li>
-                        <li class="breadcrumb-item"><a href="newsList.jsp?category=<%= news.getCategory() %>"><%= news.getCategory() %></a></li>
-                        <li class="breadcrumb-item active">新闻详情</li>
-                    </ol>
-                </nav>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="../index.jsp">首页</a></li>
+                    <li class="breadcrumb-item"><a href="newsList.jsp?category=<%= news.getCategory() %>"><%= news.getCategory() %></a></li>
+                    <li class="breadcrumb-item active">新闻详情</li>
+                </ol>
+            </nav>
 
-                <article>
-                    <h1 class="mb-4"><%= news.getTitle() %></h1>
-                    
-                    <div class="news-meta">
-                        <span class="category badge bg-primary">分类：<%= news.getCategory() %></span>
+            <article>
+                <h1 class="mb-4"><%= news.getTitle() %></h1>
+
+                <div class="news-meta">
+                    <span class="category badge bg-primary">分类：<%= news.getCategory() %></span>
+                    <span class="author badge bg-secondary">作者：<%= news.getAuthor() %></span>
+                    <span class="source badge bg-info">来源：<%= news.getSource() %></span>
+                    <span class="time badge bg-dark">时间：<%= news.getPublishTime() %></span>
+                    <span class="views badge bg-success">阅读：<%= news.getViews() %></span>
+                    <span class="likes badge bg-danger">点赞：<%= news.getLikes() %></span>
+                    <% if (news.getTags() != null && !news.getTags().isEmpty()) { %>
+                    <div class="tags mt-2">
+                        <% for (String tag : news.getTags().split(",")) { %>
+                        <span class="badge bg-light text-dark"><%= tag %></span>
+                        <% } %>
                     </div>
+                    <% } %>
+                </div>
 
-                    <img src="<%= news.getImage() %>" class="news-image" alt="新闻图片" 
-                         onerror="this.src='../images/default.jpg'">
+                <img src="<%= news.getImage() %>" class="news-image" alt="新闻图片"
+                     onerror="this.src='../images/default.jpg'">
 
-                    <div class="news-content">
-                        <%= news.getDescription() %>
-                    </div>
-                </article>
+                <div class="ad-container banner-ad">
+                    <span class="ad-tag">广告</span>
+                    <jsp:include page="_ad.jsp">
+                        <jsp:param name="position" value="header"/>
+                    </jsp:include>
+                </div>
 
-                <!-- 相关新闻推荐 -->
-                <div class="related-news mt-5">
-                    <h3>相关新闻</h3>
-                    <div class="row">
-                        <%
-                            List<News> relatedNews = newsService.getNewsByCategory(news.getCategory());
-                            int count = 0;
-                            for (News related : relatedNews) {
-                                if (related.getId() != news.getId() && count < 3) {
-                        %>
-                        <div class="col-md-4">
-                            <div class="card mb-4">
-                                <img src="<%= related.getImage() %>" class="card-img-top" alt="相关新闻图片"
-                                     onerror="this.src='../images/default.jpg'">
-                                <div class="card-body">
-                                    <h5 class="card-title">
-                                        <a href="news?id=<%= related.getId() %>" class="text-decoration-none">
-                                            <%= related.getTitle() %>
-                                        </a>
-                                    </h5>
-                                </div>
+                <div class="news-content">
+                    <%= news.getDescription() %>
+                </div>
+
+                <div class="ad-container mt-4">
+                    <span class="ad-tag">广告</span>
+                    <jsp:include page="_ad.jsp">
+                        <jsp:param name="position" value="footer"/>
+                    </jsp:include>
+                </div>
+            </article>
+
+
+            <!-- 相关新闻推荐 -->
+            <div class="related-news mt-5">
+                <h3>相关新闻</h3>
+                <div class="row">
+                    <%
+                        List<News> relatedNews = newsService.getNewsByCategory(news.getCategory());
+                        int count = 0;
+                        for (News related : relatedNews) {
+                            if (related.getId() != news.getId() && count < 3) {
+                    %>
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <img src="<%= related.getImage() %>" class="card-img-top" alt="相关新闻图片"
+                                 onerror="this.src='../images/default.jpg'">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a href="news?id=<%= related.getId() %>" class="text-decoration-none">
+                                        <%= related.getTitle() %>
+                                    </a>
+                                </h5>
                             </div>
                         </div>
-                        <%
-                                    count++;
-                                }
-                            }
-                        %>
                     </div>
+                    <%
+                                count++;
+                            }
+                        }
+                    %>
                 </div>
+            </div>
             <%
-                    } else {
+            } else {
             %>
-                <div class="alert alert-warning" role="alert">
-                    未找到该新闻！
-                </div>
+            <div class="alert alert-warning" role="alert">
+                未找到该新闻！
+            </div>
             <%
-                    }
                 }
             %>
         </div>
@@ -152,7 +179,7 @@
                 <img src="../images/ad1.jpg" alt="广告图片" class="img-fluid mb-2">
                 <p class="text-center mb-0">广告内容</p>
             </div>
-            
+
             <div class="ad-space">
                 <h5 class="text-center mb-3">广告位 2</h5>
                 <img src="../images/ad2.jpg" alt="广告图片" class="img-fluid mb-2">

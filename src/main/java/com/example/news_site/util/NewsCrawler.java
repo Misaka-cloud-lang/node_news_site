@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Collections;
 
 public class NewsCrawler {
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
@@ -141,114 +143,60 @@ public class NewsCrawler {
             
             // 国内新闻源
             categoryUrls.put("国内", Arrays.asList(
-                "https://news.sina.com.cn/china/",
-                "https://news.sina.com.cn/gov/",
-                "https://news.sina.com.cn/society/",
-                "https://news.sina.com.cn/roll/#pageid=153&lid=2510&k=&num=50&page=1",
-                "https://news.qq.com/china_index.shtml",
-                "https://china.huanqiu.com/"
+                "https://news.sina.com.cn/china/"
             ));
             
             // 国际新闻源
             categoryUrls.put("国际", Arrays.asList(
-                "https://news.sina.com.cn/world/",
-                "https://news.sina.com.cn/gjzx/",
-                "https://news.sina.com.cn/w/",
-                "https://world.huanqiu.com/",
-                "https://news.qq.com/world_index.shtml"
+                "https://news.sina.com.cn/world/"
             ));
             
             // 经济新闻源
             categoryUrls.put("经济", Arrays.asList(
                 "https://finance.sina.com.cn/china/",
-                "https://finance.sina.com.cn/stock/",
-                "https://finance.sina.com.cn/roll/",
-                "https://finance.qq.com/",
-                "https://business.sohu.com/",
-                "https://money.163.com/"
+                "https://finance.sina.com.cn/stock/"
             ));
             
             // 科技新闻源
             categoryUrls.put("科技", Arrays.asList(
                 "https://tech.sina.com.cn/",
-                "https://tech.sina.com.cn/internet/",
                 "https://tech.sina.com.cn/it/"
             ));
             
             // 娱乐新闻源
             categoryUrls.put("娱乐", Arrays.asList(
                 "https://ent.sina.com.cn/",
-                "https://ent.sina.com.cn/star/",
-                "https://ent.sina.com.cn/movie/",
-                "https://ent.sina.com.cn/tv/",
-                "https://ent.qq.com/",
-                "https://ent.163.com/",
-                "https://www.yule.com.cn/",
-                "https://ent.ifeng.com/"
+                "https://ent.sina.com.cn/star/"
             ));
             
             // 体育新闻源
             categoryUrls.put("体育", Arrays.asList(
                 "https://sports.sina.com.cn/",
-                "https://sports.sina.com.cn/basketball/",
-                "https://sports.sina.com.cn/football/",
-                "https://sports.qq.com/",
-                "https://sports.163.com/",
-                "https://sports.sohu.com/",
-                "https://sports.ifeng.com/",
-                "https://www.hupu.com/"
+                "https://sports.sina.com.cn/nba/"
             ));
             
             // 教育新闻源
             categoryUrls.put("教育", Arrays.asList(
                 "https://edu.sina.com.cn/",
-                "https://edu.sina.com.cn/gaokao/",
-                "https://edu.sina.com.cn/l/",
-                "https://edu.qq.com/",
-                "https://edu.163.com/",
-                "https://learning.sohu.com/",
-                "https://edu.ifeng.com/",
-                "https://www.eol.cn/"
+                "https://edu.sina.com.cn/gaokao/"
             ));
             
             // 健康新闻源
             categoryUrls.put("健康", Arrays.asList(
                 "https://health.sina.com.cn/",
-                "https://health.sina.com.cn/news/",
-                "https://health.sina.com.cn/healthcare/",
-                "https://health.qq.com/",
-                "https://jiankang.163.com/",
-                "https://health.sohu.com/",
-                "https://fashion.ifeng.com/health/",
-                "https://www.39.net/"
+                "https://health.sina.com.cn/news/"
             ));
             
             // 文化新闻源
             categoryUrls.put("文化", Arrays.asList(
                 "https://cul.sina.com.cn/",
-                "https://cul.sina.com.cn/art/",
-                "https://book.sina.com.cn/",
-                "https://cul.qq.com/",
-                "https://culture.163.com/",
-                "https://culture.sohu.com/",
-                "https://culture.ifeng.com/",
-                "https://art.china.cn/"
+                "https://cul.sina.com.cn/art/"
             ));
             
             // 军事新闻源
             categoryUrls.put("军事", Arrays.asList(
                 "https://mil.sina.com.cn/",
-                "https://mil.sina.com.cn/china/",
-                "https://mil.sina.com.cn/world/",
-                "https://mil.sina.com.cn/roll/",
-                "https://mil.sina.com.cn/dgby/",
-                "https://mil.sina.com.cn/jssd/",
-                "https://mil.sina.com.cn/jmxf/",
-                "https://mil.sina.com.cn/gtj/",
-                "https://mil.huanqiu.com/",
-                "https://mil.news.sina.com.cn/",
-                "https://military.china.com/",
-                "https://mil.qq.com/"
+                "https://mil.sina.com.cn/china/"
             ));
 
             // 添加计数器Map
@@ -275,12 +223,10 @@ public class NewsCrawler {
                         
                         // 使用多个选择器来增加抓取成功率
                         Elements newsElements = new Elements();
-                        newsElements.addAll(doc.select(".news-item"));
-                        newsElements.addAll(doc.select(".news-box"));
-                        newsElements.addAll(doc.select("article"));
-                        newsElements.addAll(doc.select(".item"));
-                        newsElements.addAll(doc.select("[class*=news]"));
-                        newsElements.addAll(doc.select("[class*=article]"));
+                        newsElements.addAll(doc.select(".main-content .news-item"));  // 主要内容区的新闻
+                        newsElements.addAll(doc.select(".feed-card-item"));  // 新闻卡片
+                        newsElements.addAll(doc.select(".news-box"));  // 新闻盒子
+                        newsElements.addAll(doc.select(".news-list li"));  // 新闻列表项
                         
                         for (Element element : newsElements) {
                             // 再次检查限制
@@ -293,11 +239,73 @@ public class NewsCrawler {
                             String image = getImage(element);
                             
                             if (!title.isEmpty() && !description.isEmpty()) {
-                                News news = new News(0, title, description, category, image);
-                                newsList.add(news);
-                                categoryCount.put(category, categoryCount.get(category) + 1);
-                                System.out.println("找到" + category + "新闻：" + title + 
-                                    " (当前数量: " + categoryCount.get(category) + ")");
+                                News news = new News();
+                                news.setTitle(title);
+                                news.setDescription(description);
+                                news.setCategory(category);
+                                
+                                // 图片处理
+                                if (image.isEmpty() || image.equals("/images/default.jpg")) {
+                                    // 根据分类设置默认图片
+                                    switch (category) {
+                                        case "国内": image = "/images/domestic_default.jpg"; break;
+                                        case "国际": image = "/images/international_default.jpg"; break;
+                                        case "经济": image = "/images/finance_default.jpg"; break;
+                                        case "科技": image = "/images/tech_default.jpg"; break;
+                                        case "娱乐": image = "/images/entertainment_default.jpg"; break;
+                                        case "体育": image = "/images/sports_default.jpg"; break;
+                                        case "教育": image = "/images/education_default.jpg"; break;
+                                        case "健康": image = "/images/health_default.jpg"; break;
+                                        case "文化": image = "/images/culture_default.jpg"; break;
+                                        case "军事": image = "/images/military_default.jpg"; break;
+                                        default: image = "/images/default.jpg";
+                                    }
+                                }
+                                news.setImage(image);
+                                
+                                // 作者和来源
+                                news.setAuthor(getDefaultAuthor(category));
+                                news.setSource("新浪新闻");
+                                
+                                // 时间处理
+                                news.setPublishTime(new Date());
+                                news.setUpdateTime(new Date());
+                                
+                                // 统计信息
+                                news.setViews(0);
+                                news.setLikes(0);
+                                
+                                // 内容处理
+                                String summary = description.length() > 200 ? description.substring(0, 200) : description;
+                                news.setSummary(summary);
+                                news.setContentHtml("<article class=\"news-content\"><p>" + description + "</p></article>");
+                                
+                                // 标签处理
+                                news.setTags(getDefaultTags(category));
+                                
+                                // 其他属性
+                                news.setStatus("published");
+                                news.setTop(false);
+                                news.setRelatedImages("[\"" + image + "\"]");
+                                
+                                // 检查新闻是否有效
+                                if (isValidNews(news)) {
+                                    System.out.println("准备添加新闻: " + title);
+                                    System.out.println("分类: " + category);
+                                    System.out.println("图片URL: " + image);
+                                    System.out.println("内容长度: " + description.length());
+                                    
+                                    if (!isDuplicateNews(newsList, title)) {
+                                        newsList.add(news);
+                                        categoryCount.put(category, categoryCount.get(category) + 1);
+                                        System.out.println("成功添加新闻：" + title + 
+                                            " (当前数量: " + categoryCount.get(category) + ")");
+                                    } else {
+                                        System.out.println("跳过重复新闻：" + title);
+                                    }
+                                } else {
+                                    System.out.println("新闻验证失败：" + title);
+                                }
                             }
                         }
                     } catch (Exception e) {
@@ -312,34 +320,47 @@ public class NewsCrawler {
         return newsList;
     }
 
-    // 辅助方法：获取标题
+    // 修改标题处理方法
     private String getTitle(Element element) {
         String title = "";
-        // 尝试多个选择器
         String[] selectors = {
-            "h1", "h2", "h3", ".title", ".headline", "a", "[class*=title]"
+            ".news-title", "h1", "h2", ".title a", 
+            ".card-title", ".list-title"
         };
         
         for (String selector : selectors) {
-            title = element.select(selector).text();
-            if (!title.isEmpty()) break;
+            Element titleElement = element.select(selector).first();
+            if (titleElement != null) {
+                title = titleElement.text();
+                if (!title.isEmpty() && title.length() > 10) {  // 标题长度至少10个字符
+                    if (title.length() > 50) {
+                        title = title.substring(0, 47) + "...";
+                    }
+                    break;
+                }
+            }
         }
         return title;
     }
 
-    // 辅助方法：获取描述
+    // 修改描述选择器
     private String getDescription(Element element) {
         String description = "";
-        // 尝试多个选择器
         String[] selectors = {
-            "p", ".desc", ".summary", ".brief", ".content", "[class*=desc]", "[class*=text]"
+            ".news-content", ".article-content", 
+            ".content-text", ".card-content"
         };
         
         for (String selector : selectors) {
-            description = element.select(selector).text();
-            if (!description.isEmpty()) break;
+            Element descElement = element.select(selector).first();
+            if (descElement != null) {
+                description = descElement.text();
+                if (!description.isEmpty() && description.length() > 50) {  // 内容长度至少50个字符
+                    break;
+                }
+            }
         }
-        return description.isEmpty() ? getTitle(element) : description;
+        return description;
     }
 
     // 辅助方法：获取图片
@@ -362,120 +383,151 @@ public class NewsCrawler {
         return image.isEmpty() ? "/images/default.jpg" : image;
     }
 
-    public List<News> crawlNewsFromCCTV() {
-        List<News> newsList = new ArrayList<>();
-        try {
-            Map<String, String> categoryUrls = new HashMap<>();
-            categoryUrls.put("国内", "https://news.cctv.com/china/");
-            categoryUrls.put("国际", "https://news.cctv.com/world/");
-            categoryUrls.put("经济", "https://news.cctv.com/finance/");
-            categoryUrls.put("科技", "https://news.cctv.com/tech/");
-            categoryUrls.put("娱乐", "https://ent.cctv.com/");
-            categoryUrls.put("体育", "https://sports.cctv.com/");
-            categoryUrls.put("教育", "https://jy.cctv.com/");
-            categoryUrls.put("健康", "https://health.cctv.com/");
-            categoryUrls.put("文化", "https://culture.cctv.com/");
-            categoryUrls.put("军事", "https://military.cctv.com/");
-
-            // 添加计数器Map
-            Map<String, Integer> categoryCount = new HashMap<>();
-            for (String category : categoryUrls.keySet()) {
-                categoryCount.put(category, 0);
-            }
-
-            for (Map.Entry<String, String> entry : categoryUrls.entrySet()) {
-                String category = entry.getKey();
-                String url = entry.getValue();
-                
-                // 检查是否达到限制
-                if (categoryCount.get(category) >= MAX_NEWS_PER_CATEGORY) {
-                    continue;
-                }
-
-                Document doc = Jsoup.connect(url)
-                        .userAgent(USER_AGENT)
-                        .timeout(5000)
-                        .get();
-                
-                Elements newsElements = doc.select(".con_item, .image_list_item, .text_list_item");
-                
-                for (Element element : newsElements) {
-                    // 检查是否达到限制
-                    if (categoryCount.get(category) >= MAX_NEWS_PER_CATEGORY) {
-                        break;
-                    }
-
-                    String title = "";
-                    String description = "";
-                    String image = "";
-
-                    // 获取标题
-                    Element titleElement = element.select(".title_main, h3").first();
-                    if (titleElement != null) {
-                        title = titleElement.text();
-                    }
-
-                    // 获取描述
-                    Element descElement = element.select(".brief, .des").first();
-                    if (descElement != null) {
-                        description = descElement.text();
-                    } else {
-                        description = title;
-                    }
-
-                    // 获取图片
-                    Element imgElement = element.select("img").first();
-                    if (imgElement != null) {
-                        image = imgElement.attr("src");
-                        if (image.isEmpty()) {
-                            image = imgElement.attr("data-src");
-                        }
-                    }
-                    if (image.isEmpty()) {
-                        image = "/images/default.jpg";
-                    }
-
-                    if (!title.isEmpty()) {
-                        News news = new News(0, title, description, category, image);
-                        newsList.add(news);
-                        categoryCount.put(category, categoryCount.get(category) + 1);
-                        System.out.println("找到新闻 - 分类: " + category + ", 标题: " + title + 
-                            " (当前数量: " + categoryCount.get(category) + ")");
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("抓取央视新闻失败: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return newsList;
-    }
-
     public static void fetchNews() throws Exception {
         NewsCrawler crawler = new NewsCrawler();
         NewsService newsService = new NewsService();
         
-        // 删除一半旧新闻
+        System.out.println("开始爬取新闻...");
+        
+        // 只爬取新浪新闻
+        List<News> sinaNews = crawler.crawlNewsFromSina();
+        System.out.println("新浪新闻爬取完成，获取 " + sinaNews.size() + " 条新闻");
+        
+        // 删除旧新闻
         System.out.println("开始清理旧新闻...");
         newsService.deleteHalfNews();
         System.out.println("旧新闻清理完成");
         
-        // 爬取新新闻
-        List<News> sinaNews = crawler.crawlNewsFromSina();
-        List<News> cctvNews = crawler.crawlNewsFromCCTV();
-        
-        // 保存新浪新闻
-        System.out.println("开始保存新浪新闻，共" + sinaNews.size() + "条");
+        // 保存新闻
+        int savedCount = 0;
         for (News news : sinaNews) {
-            newsService.addNews(news);
+            try {
+                if (newsService.addNews(news)) {
+                    savedCount++;
+                    if (savedCount % 10 == 0) {
+                        System.out.println("已保存 " + savedCount + " 条新闻");
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("保存新闻失败: " + news.getTitle());
+                e.printStackTrace();
+            }
         }
         
-        // 保存央视新闻
-        System.out.println("开始保存央视新闻，共" + cctvNews.size() + "条");
-        for (News news : cctvNews) {
-            newsService.addNews(news);
+        System.out.println("新闻爬取完成，共保存 " + savedCount + " 条新闻");
+    }
+
+    // 添加获取默认作者的方法
+    private String getDefaultAuthor(String category) {
+        switch (category) {
+            case "健康": return "健康频道记者";
+            case "科技": return "科技频道记者";
+            case "体育": return "体育频道记者";
+            case "娱乐": return "娱乐频道记者";
+            case "国内": return "时政记者";
+            case "国际": return "国际记者";
+            case "经济": return "财经记者";
+            case "教育": return "教育记者";
+            case "文化": return "文化记者";
+            case "军事": return "军事记者";
+            default: return "新闻记者";
         }
-        
-        System.out.println("新闻更新完成，共保存" + (sinaNews.size() + cctvNews.size()) + "条新闻");
+    }
+
+    // 添加获取默认标签的方法
+    private String getDefaultTags(String category) {
+        switch (category) {
+            case "健康": return "养生,医疗,健康生活";
+            case "科技": return "科技新闻,创新,数码";
+            case "体育": return "体育新闻,赛事,运动";
+            case "娱乐": return "明星,影视,音乐";
+            case "国内": return "时政,社会,民生";
+            case "国际": return "国际新闻,外交,全球";
+            case "经济": return "财经,金融,商业";
+            case "教育": return "教育,考试,升学";
+            case "文化": return "文化,艺术,传统";
+            case "军事": return "军事,国防,装备";
+            default: return "新闻,热点";
+        }
+    }
+
+    // 添加获取默认来源的方法
+    private String getDefaultSource(String category) {
+        switch (category) {
+            case "健康": return "健康时报";
+            case "科技": return "科技日报";
+            case "体育": return "体育新闻";
+            case "娱乐": return "娱乐周刊";
+            case "国内": return "人民日报";
+            case "国际": return "环球时报";
+            case "经济": return "经济观察报";
+            case "教育": return "中国教育报";
+            case "文化": return "文化日报";
+            case "军事": return "军事新闻";
+            default: return "新闻中心";
+        }
+    }
+
+    // 添加检查重复新闻的方法
+    private boolean isDuplicateNews(List<News> newsList, String title) {
+        return newsList.stream().anyMatch(news -> news.getTitle().equals(title));
+    }
+
+    // 添加新闻验证方法
+    private boolean isValidNews(News news) {
+        // 1. 标题检查
+        if (news.getTitle() == null || news.getTitle().length() < 5) {
+            return false;
+        }
+
+        // 2. 内容检查
+        if (news.getDescription() == null || news.getDescription().length() < 20) {
+            return false;
+        }
+
+        // 3. 分类检查
+        if (news.getCategory() == null || news.getCategory().isEmpty()) {
+            return false;
+        }
+
+        // 4. 图片检查
+        if (news.getImage() == null || 
+            (!news.getImage().startsWith("http://") && 
+             !news.getImage().startsWith("https://") && 
+             !news.getImage().startsWith("/images/"))) {
+            return false;
+        }
+
+        // 5. 来源检查
+        if (news.getSource() == null || news.getSource().isEmpty()) {
+            return false;
+        }
+
+        // 6. 作者检查
+        if (news.getAuthor() == null || news.getAuthor().isEmpty()) {
+            return false;
+        }
+
+        // 7. 标签检查
+        if (news.getTags() == null || news.getTags().isEmpty()) {
+            return false;
+        }
+
+        // 8. 内容HTML检查
+        if (news.getContentHtml() == null || news.getContentHtml().isEmpty()) {
+            return false;
+        }
+
+        // 9. 摘要检查
+        if (news.getSummary() == null || news.getSummary().isEmpty()) {
+            return false;
+        }
+
+        // 10. 时间检查
+        if (news.getPublishTime() == null) {
+            return false;
+        }
+
+        return true;
     }
 }
