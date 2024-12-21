@@ -60,24 +60,19 @@ public class NewsDAO {
     // 根据ID获取新闻
     public News getNewsById(int id) throws SQLException {
         String sql = "SELECT * FROM news WHERE id = ?";
-        try (Connection conn = dbConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    // Debug log to check the fetched data
-                    System.out.println("Found news: " + rs.getString("title"));
                     return new News(
-                            rs.getInt("id"),
-                            rs.getString("title"),
-                            rs.getString("description"),
-                            rs.getString("category"),
-                            rs.getString("image")
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getString("category"),
+                        rs.getString("image")
                     );
-                } else {
-                    // Debug log if no news found
-                    System.out.println("No news found for ID: " + id);
                 }
             }
         }
@@ -115,48 +110,64 @@ public class NewsDAO {
     // 搜索新闻 (根据关键字搜索标题或内容)
     public List<News> searchNews(String keyword) throws SQLException {
         List<News> newsList = new ArrayList<>();
-        String sql = "SELECT * FROM news WHERE title LIKE ? OR description LIKE ?";  // 更新为 description
+        String sql = "SELECT * FROM news WHERE title LIKE ? OR description LIKE ? ORDER BY id DESC";
 
-        try (Connection conn = dbConnection.getConnection();
+        System.out.println("执行搜索SQL: " + sql);
+        System.out.println("搜索关键词: " + keyword);
+
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, "%" + keyword + "%");
-            ps.setString(2, "%" + keyword + "%");
+            
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            
+            System.out.println("实际搜索模式: " + searchPattern);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     News news = new News(
-                            rs.getInt("id"),
-                            rs.getString("title"),
-                            rs.getString("description"),  // 更新为 description
-                            rs.getString("category"),     // 更新为 category
-                            rs.getString("image")        // 更新为 image
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getString("category"),
+                        rs.getString("image")
                     );
                     newsList.add(news);
+                    System.out.println("找到匹配新闻: " + news.getTitle());
                 }
             }
         }
+        
+        System.out.println("搜索完成，共找到 " + newsList.size() + " 条结果");
         return newsList;
     }
 
     // 根据分类ID获取新闻
+    /*
     public List<News> getNewsByCategory(int categoryId) throws SQLException {
+        // ... 删除这个方法
+    }
+    */
+
+    // 根据分类获取新闻
+    public List<News> getNewsByCategory(String category) throws SQLException {
         List<News> newsList = new ArrayList<>();
-        String sql = "SELECT * FROM news WHERE category = ?";  // 更新为 category
+        String sql = "SELECT * FROM news WHERE category = ? ORDER BY id DESC";
 
-        try (Connection conn = dbConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, String.valueOf(categoryId));  // 假设 category 是字符串类型
-
+            
+            ps.setString(1, category);
+            
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     News news = new News(
-                            rs.getInt("id"),
-                            rs.getString("title"),
-                            rs.getString("description"),  // 更新为 description
-                            rs.getString("category"),     // 更新为 category
-                            rs.getString("image")        // 更新为 image
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getString("description"),
+                        rs.getString("category"),
+                        rs.getString("image")
                     );
                     newsList.add(news);
                 }
@@ -165,40 +176,56 @@ public class NewsDAO {
         return newsList;
     }
 
-    public List<News> getNewsByCategoryName(String categoryParam) throws SQLException {
-        List<News> newsList = new ArrayList<>();
-        String sql = """
-    
-                SELECT n.id, n.title, n.description, n.category, n.image
-    FROM news n
-    JOIN category c ON n.category = c.name
-    WHERE c.name = ?
-    """;
-
-        try (Connection conn = dbConnection.getConnection();
+    // 获取分类新闻总数
+    public int getNewsTotalByCategory(String category) throws SQLException {
+        String sql = "SELECT COUNT(*) as total FROM news WHERE category = ?";
+        
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, categoryParam);
-
+            
+            ps.setString(1, category);
+            
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    News news = new News(
-                            rs.getInt("id"),
-                            rs.getString("title"),
-                            rs.getString("description"),
-                            rs.getString("category"),
-                            rs.getString("image")
-                    );
-                    newsList.add(news);
+                if (rs.next()) {
+                    return rs.getInt("total");
                 }
             }
         }
+        return 0;
+    }
 
-        // 调试输出
-        System.out.println("Executing SQL: " + sql);
-        System.out.println("Category parameter: " + categoryParam);
-        System.out.println("News count fetched: " + newsList.size());
+    public void deleteAllNews() throws SQLException {
+        String sql = "DELETE FROM news";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.executeUpdate();
+            System.out.println("数据库新闻已清空");
+        }
+    }
 
-        return newsList;
+    public void deleteHalfNews() throws SQLException {
+        // 先获取总数
+        String countSql = "SELECT COUNT(*) as total FROM news";
+        int totalCount = 0;
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(countSql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                totalCount = rs.getInt("total");
+            }
+        }
+        
+        if (totalCount > 0) {
+            // 删除较旧的一半新闻（ID较小的）
+            String deleteSql = "DELETE FROM news WHERE id IN (SELECT id FROM news ORDER BY id ASC LIMIT ?)";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(deleteSql)) {
+                int halfCount = totalCount / 2;
+                ps.setInt(1, halfCount);
+                int deletedCount = ps.executeUpdate();
+                System.out.println("已删除 " + deletedCount + " 条较旧新闻，剩余 " + (totalCount - deletedCount) + " 条");
+            }
+        }
     }
 }

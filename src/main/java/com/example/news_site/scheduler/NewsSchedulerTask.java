@@ -1,25 +1,50 @@
 package com.example.news_site.scheduler;
 
 import com.example.news_site.util.NewsCrawler;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Date;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.annotation.WebListener;
 
-public class NewsSchedulerTask {
-    private static final long PERIOD = 1000 * 60 * 60; // 1小时
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.time.LocalDateTime;
+import java.time.Duration;
 
-    public void startScheduler() {
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    NewsCrawler.fetchNews();
-                    System.out.println("新闻抓取完成：" + new Date());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+@WebListener
+public class NewsSchedulerTask implements ServletContextListener {
+    private ScheduledExecutorService scheduler;
+
+    @Override
+    public void contextInitialized(ServletContextEvent event) {
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        
+        // 计算距离下一个凌晨3点的时间
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextRun = now.withHour(3).withMinute(0).withSecond(0);
+        if (now.compareTo(nextRun) > 0) {
+            nextRun = nextRun.plusDays(1);
+        }
+        
+        long initialDelay = Duration.between(now, nextRun).toSeconds();
+        
+        // 设置每24小时执行一次爬虫任务
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                System.out.println("开始执行每日新闻更新任务: " + LocalDateTime.now());
+                NewsCrawler.fetchNews();
+                System.out.println("每日新闻更新任务完成: " + LocalDateTime.now());
+            } catch (Exception e) {
+                System.err.println("新闻更新任务失败: " + e.getMessage());
+                e.printStackTrace();
             }
-        }, 0, PERIOD);
+        }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent event) {
+        if (scheduler != null) {
+            scheduler.shutdownNow();
+        }
     }
 } 

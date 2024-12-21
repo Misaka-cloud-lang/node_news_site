@@ -1,80 +1,171 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="com.example.news_site.service.NewsService" %>
+<%@ page import="com.example.news_site.model.News" %>
+<%@ page import="java.util.List" %>
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>新闻详情</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻详情</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .news-image {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+        }
+        .news-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin: 15px 0;
+        }
+        .news-content {
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+        .ad-space {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .ad-space img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
 
 <!-- 头部导航栏 -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
-    <a class="navbar-brand" href="index.jsp">usst在线新闻网站</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="index.jsp">首页</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=国内">国内</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=国际">国际</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=经济">经济</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=科技">科技</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=娱乐">娱乐</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=体育">体育</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=教育">教育</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=健康">健康</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=文化">文化</a></li>
-        <li class="nav-item"><a class="nav-link" href="news?category=军事">军事</a></li>
-      </ul>
-      <form class="d-flex ms-auto" action="news" method="get">
-        <input class="form-control me-2" type="text" name="query" placeholder="搜索新闻" required>
-        <button class="btn btn-outline-light" type="submit">搜索</button>
-      </form>
+    <div class="container">
+        <a class="navbar-brand" href="../index.jsp">usst在线新闻网站</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="../index.jsp">首页</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=国内">国内</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=国际">国际</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=经济">经济</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=科技">科技</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=娱乐">娱乐</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=体育">体育</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=教育">教育</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=健康">健康</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=文化">文化</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=军事">军事</a></li>
+            </ul>
+            <form class="d-flex ms-auto" action="news" method="get">
+                <input class="form-control me-2" type="text" name="query" placeholder="搜索新闻" required>
+                <button class="btn btn-outline-light" type="submit">搜索</button>
+            </form>
+        </div>
     </div>
-  </div>
 </nav>
 
-<!-- 其他页面内容 -->
 <div class="container mt-4">
-  <div class="row">
-    <!-- 新闻详情部分 -->
-    <div class="col-md-9">
-      <h2 class="mb-4">${news.title}</h2>
-      <p><strong>分类：</strong>${news.category}</p>
-      <p><strong>描述：</strong>${news.description}</p>
+    <div class="row">
+        <!-- 新闻详情部分 -->
+        <div class="col-md-9">
+            <%
+                String newsId = request.getParameter("id");
+                if (newsId != null && !newsId.isEmpty()) {
+                    NewsService newsService = new NewsService();
+                    News news = newsService.getNewsById(Integer.parseInt(newsId));
+                    
+                    if (news != null) {
+            %>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="../index.jsp">首页</a></li>
+                        <li class="breadcrumb-item"><a href="newsList.jsp?category=<%= news.getCategory() %>"><%= news.getCategory() %></a></li>
+                        <li class="breadcrumb-item active">新闻详情</li>
+                    </ol>
+                </nav>
 
-      <!-- 显示新闻图片 -->
-      <img src="${news.image != null && !news.image.isEmpty() ? news.image : 'images/default.jpg'}" class="img-fluid" alt="新闻图片">
-    </div>
+                <article>
+                    <h1 class="mb-4"><%= news.getTitle() %></h1>
+                    
+                    <div class="news-meta">
+                        <span class="category badge bg-primary">分类：<%= news.getCategory() %></span>
+                    </div>
 
-    <!-- 广告栏部分 -->
-    <div class="col-md-3">
-      <div class="mb-4 p-3 bg-light border text-center">
-        <p class="fw-bold">广告位 1</p>
-        <p>广告内容</p>
-        <img src="images/ad1.jpg" alt="广告图片" class="img-fluid">
-      </div>
-      <div class="p-3 bg-light border text-center">
-        <p class="fw-bold">广告位 2</p>
-        <p>另一种广告形式</p>
-        <img src="images/ad2.jpg" alt="广告图片" class="img-fluid">
-      </div>
+                    <img src="<%= news.getImage() %>" class="news-image" alt="新闻图片" 
+                         onerror="this.src='../images/default.jpg'">
+
+                    <div class="news-content">
+                        <%= news.getDescription() %>
+                    </div>
+                </article>
+
+                <!-- 相关新闻推荐 -->
+                <div class="related-news mt-5">
+                    <h3>相关新闻</h3>
+                    <div class="row">
+                        <%
+                            List<News> relatedNews = newsService.getNewsByCategory(news.getCategory());
+                            int count = 0;
+                            for (News related : relatedNews) {
+                                if (related.getId() != news.getId() && count < 3) {
+                        %>
+                        <div class="col-md-4">
+                            <div class="card mb-4">
+                                <img src="<%= related.getImage() %>" class="card-img-top" alt="相关新闻图片"
+                                     onerror="this.src='../images/default.jpg'">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="news?id=<%= related.getId() %>" class="text-decoration-none">
+                                            <%= related.getTitle() %>
+                                        </a>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <%
+                                    count++;
+                                }
+                            }
+                        %>
+                    </div>
+                </div>
+            <%
+                    } else {
+            %>
+                <div class="alert alert-warning" role="alert">
+                    未找到该新闻！
+                </div>
+            <%
+                    }
+                }
+            %>
+        </div>
+
+        <!-- 广告栏部分 -->
+        <div class="col-md-3">
+            <div class="ad-space mb-4">
+                <h5 class="text-center mb-3">广告位 1</h5>
+                <img src="../images/ad1.jpg" alt="广告图片" class="img-fluid mb-2">
+                <p class="text-center mb-0">广告内容</p>
+            </div>
+            
+            <div class="ad-space">
+                <h5 class="text-center mb-3">广告位 2</h5>
+                <img src="../images/ad2.jpg" alt="广告图片" class="img-fluid mb-2">
+                <p class="text-center mb-0">另一种广告形式</p>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
-
 
 <!-- 底部 -->
 <footer class="bg-light py-3 mt-5 text-center">
-  <p>&copy; 2024 上海理工大学. 版权所有.</p>
+    <p>&copy; 2024 上海理工大学. 版权所有.</p>
 </footer>
-
-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

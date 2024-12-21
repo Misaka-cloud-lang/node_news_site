@@ -3,6 +3,8 @@ package com.example.news_site.service;
 import com.example.news_site.dao.NewsDAO;
 import com.example.news_site.model.News;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class NewsService {
@@ -62,6 +64,50 @@ public class NewsService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public List<News> getNewsByCategory(String category) {
+        try {
+            return newsDAO.getNewsByCategory(category);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public int getNewsTotalByCategory(String category) {
+        try {
+            return newsDAO.getNewsTotalByCategory(category);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    // 添加搜索方法
+    public List<News> searchNews(String keyword) {
+        try {
+            return newsDAO.searchNews(keyword);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public void deleteAllNews() {
+        try {
+            newsDAO.deleteAllNews();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteHalfNews() {
+        try {
+            newsDAO.deleteHalfNews();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

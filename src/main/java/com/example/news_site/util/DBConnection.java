@@ -2,34 +2,44 @@ package com.example.news_site.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class DBConnection {
+    private static String url;
+    private static String username;
+    private static String password;
+    private static String driver;
 
-    // 数据库配置
-    private static final String URL = "jdbc:mysql://localhost:3306/news_1217?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASSWORD = "Deng2846240558";
-
-    /**
-     * 获取数据库连接
-     * @return 数据库连接对象
-     * @throws SQLException 如果连接失败
-     */
-    public static Connection getConnection() throws SQLException {
+    static {
         try {
-            // 显式加载MySQL JDBC驱动程序
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            System.out.println("MySQL JDBC Driver successfully loaded!");
+            Properties prop = new Properties();
+            InputStream input = DBConnection.class.getClassLoader().getResourceAsStream("db.properties");
+            prop.load(input);
 
-            // 获取数据库连接
-            return DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (ClassNotFoundException e) {
-            // 如果无法加载驱动，抛出异常
-            throw new SQLException("MySQL JDBC Driver not found.", e);
-        } catch (SQLException e) {
-            // 捕获并打印SQL异常
-            throw new SQLException("数据库连接失败: " + e.getMessage(), e);
+            driver = prop.getProperty("jdbc.driver");
+            url = prop.getProperty("jdbc.url");
+            username = prop.getProperty("jdbc.username");
+            password = prop.getProperty("jdbc.password");
+
+            Class.forName(driver);
+            System.out.println("数据库配置加载成功！");
+            System.out.println("URL: " + url);
+            System.out.println("Username: " + username);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Connection getConnection() {
+        try {
+            Connection conn = DriverManager.getConnection(url, username, password);
+            System.out.println("数据库连接成功！");
+            return conn;
+        } catch (Exception e) {
+            System.out.println("数据库连接失败：" + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 }

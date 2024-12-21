@@ -38,19 +38,19 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="index.jsp">首页</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=国内">国内</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=国际">国际</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=经济">经济</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=科技">科技</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=娱乐">娱乐</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=体育">体育</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=教育">教育</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=健康">健康</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=文化">文化</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=军事">军事</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/index.jsp">首页</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=国内">国内</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=国际">国际</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=经济">经济</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=科技">科技</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=娱乐">娱乐</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=体育">体育</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=教育">教育</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=健康">健康</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=文化">文化</a></li>
+                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=军事">军事</a></li>
             </ul>
-            <form class="d-flex ms-auto" action="news" method="get">
+            <form class="d-flex ms-auto" action="${pageContext.request.contextPath}/news" method="get">
                 <input class="form-control me-2" type="text" name="query" placeholder="搜索新闻" required>
                 <button class="btn btn-outline-light" type="submit">搜索</button>
             </form>
@@ -95,16 +95,16 @@
 <div class="container mt-4">
     <h4>新闻分类</h4>
     <div class="row">
-        <div class="col-md-3"><a href="news?category=国内" class="btn btn-outline-primary d-block">国内新闻</a></div>
-        <div class="col-md-3"><a href="news?category=国际" class="btn btn-outline-success d-block">国际新闻</a></div>
-        <div class="col-md-3"><a href="news?category=经济" class="btn btn-outline-danger d-block">经济新闻</a></div>
-        <div class="col-md-3"><a href="news?category=科技" class="btn btn-outline-warning d-block">科技新闻</a></div>
-        <div class="col-md-3"><a href="news?category=娱乐" class="btn btn-outline-info d-block">娱乐新闻</a></div>
-        <div class="col-md-3"><a href="news?category=体育" class="btn btn-outline-dark d-block">体育新闻</a></div>
-        <div class="col-md-3"><a href="news?category=教育" class="btn btn-outline-secondary d-block">教育新闻</a></div>
-        <div class="col-md-3"><a href="news?category=健康" class="btn btn-outline-info d-block">健康新闻</a></div>
-        <div class="col-md-3"><a href="news?category=文化" class="btn btn-outline-warning d-block">文化新闻</a></div>
-        <div class="col-md-3"><a href="news?category=军事" class="btn btn-outline-danger d-block">军事新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=国内" class="btn btn-outline-primary d-block">国内新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=国际" class="btn btn-outline-success d-block">国际新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=经济" class="btn btn-outline-danger d-block">经济新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=科技" class="btn btn-outline-warning d-block">科技新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=娱乐" class="btn btn-outline-info d-block">娱乐新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=体育" class="btn btn-outline-dark d-block">体育新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=教育" class="btn btn-outline-secondary d-block">教育新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=健康" class="btn btn-outline-info d-block">健康新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=文化" class="btn btn-outline-warning d-block">文化新闻</a></div>
+        <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=军事" class="btn btn-outline-danger d-block">军事新闻</a></div>
     </div>
 </div>
 
@@ -138,23 +138,27 @@
     <p>&copy; 2024 上海理工大学. 版权所有.</p>
 </footer>
 
-<!-- 在底部添加一个管理员测试按钮 -->
-<div class="container mt-3">
-    <button class="btn btn-primary" onclick="crawlNews()">立即抓取新闻(测试用)</button>
-</div>
+<!-- 将爬虫按钮移到页面底部，��添加管理员检查 -->
+<% if (session.getAttribute("isAdmin") != null && (Boolean)session.getAttribute("isAdmin")) { %>
+    <div class="container mt-3 mb-3">
+        <button class="btn btn-primary" onclick="crawlNews()">手动更新新闻数据</button>
+    </div>
+<% } %>
 
 <script>
 function crawlNews() {
-    fetch('/news_system/crawl-now')
-        .then(response => response.text())
-        .then(text => {
-            alert(text);
-            location.reload();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('抓取失败：' + error);
-        });
+    if (confirm('确定要更新新闻数据吗？这可能需要一些时间。')) {
+        fetch('/news_system/crawl-now')
+            .then(response => response.text())
+            .then(text => {
+                alert(text);
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新失败：' + error);
+            });
+    }
 }
 </script>
 
