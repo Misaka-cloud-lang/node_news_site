@@ -9,18 +9,28 @@ import java.util.List;
 
 public class NewsDAO {
 
+    private DBConnection dbConnection;
+
+    public NewsDAO() {
+        this.dbConnection = new DBConnection();
+    }
+
     // 添加新闻
     public void addNews(News news) throws SQLException {
         String sql = "INSERT INTO news (title, description, category, image) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, news.getTitle());
-            ps.setString(2, news.getDescription());  // 更新为 description
-            ps.setString(3, news.getCategory());    // 更新为 category
-            ps.setString(4, news.getImage());       // 更新为 image
-
-            ps.executeUpdate();
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, news.getTitle());
+            pstmt.setString(2, news.getDescription());
+            pstmt.setString(3, news.getCategory());
+            pstmt.setString(4, news.getImage());
+            
+            // 添加日志
+            System.out.println("正在保存新闻: " + news.getTitle());
+            System.out.println("分类: " + news.getCategory());
+            
+            int result = pstmt.executeUpdate();
+            System.out.println("保存结果: " + (result > 0 ? "成功" : "失败"));
         }
     }
 
@@ -29,7 +39,7 @@ public class NewsDAO {
         List<News> newsList = new ArrayList<>();
         String sql = "SELECT * FROM news";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -50,7 +60,7 @@ public class NewsDAO {
     // 根据ID获取新闻
     public News getNewsById(int id) throws SQLException {
         String sql = "SELECT * FROM news WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -78,7 +88,7 @@ public class NewsDAO {
     // 更新新闻
     public void updateNews(News news) throws SQLException {
         String sql = "UPDATE news SET title = ?, description = ?, category = ?, image = ? WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, news.getTitle());
@@ -94,7 +104,7 @@ public class NewsDAO {
     // 删除新闻
     public void deleteNews(int id) throws SQLException {
         String sql = "DELETE FROM news WHERE id = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -107,7 +117,7 @@ public class NewsDAO {
         List<News> newsList = new ArrayList<>();
         String sql = "SELECT * FROM news WHERE title LIKE ? OR description LIKE ?";  // 更新为 description
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, "%" + keyword + "%");
@@ -134,7 +144,7 @@ public class NewsDAO {
         List<News> newsList = new ArrayList<>();
         String sql = "SELECT * FROM news WHERE category = ?";  // 更新为 category
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, String.valueOf(categoryId));  // 假设 category 是字符串类型
@@ -165,7 +175,7 @@ public class NewsDAO {
     WHERE c.name = ?
     """;
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, categoryParam);

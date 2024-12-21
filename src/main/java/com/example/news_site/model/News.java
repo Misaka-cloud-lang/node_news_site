@@ -9,7 +9,6 @@ public class News {
     private String description;
     private String category;
     private String image;
-    private Date publishDate; // 可以根据需要使用这个字段
 
     // 构造函数
     public News(int id, String title, String description, String category, String image) {
@@ -61,14 +60,6 @@ public class News {
         this.image = image;
     }
 
-    public Date getPublishDate() {
-        return publishDate;
-    }
-
-    public void setPublishDate(Date publishDate) {
-        this.publishDate = publishDate;
-    }
-
     @Override
     public String toString() {
         return "News{" +
@@ -77,7 +68,6 @@ public class News {
                 ", description='" + description + '\'' +
                 ", category='" + category + '\'' +
                 ", image='" + image + '\'' +
-                ", publishDate=" + publishDate +
                 '}';
     }
 }

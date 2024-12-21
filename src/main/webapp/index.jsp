@@ -1,4 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="com.example.news_site.service.NewsService" %>
+<%@ page import="com.example.news_site.model.News" %>
+<%@ page import="java.util.List" %>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -105,10 +108,55 @@
     </div>
 </div>
 
+<!-- 最新新闻 -->
+<div class="container mt-4">
+    <h4>最新新闻</h4>
+    <div class="row" id="newsList">
+        <%
+            NewsService newsService = new NewsService();
+            List<News> latestNews = newsService.getAllNews();
+            for (News news : latestNews) {
+        %>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="<%= news.getImage() %>" class="card-img-top" alt="新闻图片" onerror="this.src='/news_system/images/default.jpg'">
+                <div class="card-body">
+                    <h5 class="card-title"><%= news.getTitle() %></h5>
+                    <p class="card-text"><%= news.getDescription() %></p>
+                    <p class="card-text"><small class="text-muted">分类：<%= news.getCategory() %></small></p>
+                </div>
+            </div>
+        </div>
+        <%
+            }
+        %>
+    </div>
+</div>
+
 <!-- 底部 -->
 <footer class="mt-5">
     <p>&copy; 2024 上海理工大学. 版权所有.</p>
 </footer>
+
+<!-- 在底部添加一个管理员测试按钮 -->
+<div class="container mt-3">
+    <button class="btn btn-primary" onclick="crawlNews()">立即抓取新闻(测试用)</button>
+</div>
+
+<script>
+function crawlNews() {
+    fetch('/news_system/crawl-now')
+        .then(response => response.text())
+        .then(text => {
+            alert(text);
+            location.reload();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('抓取失败：' + error);
+        });
+}
+</script>
 
 </body>
 </html>
