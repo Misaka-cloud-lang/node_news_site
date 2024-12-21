@@ -67,6 +67,26 @@
 </nav>
 
 <div class="container mt-4">
+    <!-- 头部广告 -->
+    <c:if test="${not empty headerAd}">
+        <div class="ad-container header-ad">
+            <c:choose>
+                <c:when test="${headerAd.type eq 'BANNER'}">
+                    <div class="banner-ad">
+                        <a href="#" target="_blank">
+                            <img src="${headerAd.imageUrl}" alt="${headerAd.content}">
+                        </a>
+                    </div>
+                </c:when>
+                <c:when test="${headerAd.type eq 'SCROLL_TEXT'}">
+                    <div class="scroll-text">
+                        <marquee>${headerAd.content}</marquee>
+                    </div>
+                </c:when>
+            </c:choose>
+        </div>
+    </c:if>
+
     <h2 class="mb-4">${param.category}新闻</h2>
     
     <%
@@ -128,8 +148,58 @@
             </li>
         </ul>
     </nav>
+
+    <!-- 侧边栏广告 -->
+    <div class="col-md-3">
+        <c:if test="${not empty sidebarAd}">
+            <div class="ad-container sidebar-ad">
+                <c:choose>
+                    <c:when test="${sidebarAd.type eq 'FLOATING'}">
+                        <div class="floating-ad" id="floatingAd">
+                            <span class="close-btn" onclick="closeFloatingAd()">&times;</span>
+                            <img src="${sidebarAd.imageUrl}" alt="${sidebarAd.content}">
+                        </div>
+                    </c:when>
+                </c:choose>
+            </div>
+        </c:if>
+    </div>
+
+    <!-- 页脚广告 -->
+    <c:if test="${not empty footerAd}">
+        <div class="ad-container footer-ad">
+            <c:choose>
+                <c:when test="${footerAd.type eq 'SCROLL_TEXT'}">
+                    <div class="scroll-text">
+                        <marquee>${footerAd.content}</marquee>
+                    </div>
+                </c:when>
+            </c:choose>
+        </div>
+    </c:if>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function closeFloatingAd() {
+    document.getElementById('floatingAd').style.display = 'none';
+}
+
+// 随机移动浮动广告位置
+function randomFloatingPosition() {
+    const floatingAd = document.getElementById('floatingAd');
+    if (floatingAd) {
+        const maxX = window.innerWidth - floatingAd.offsetWidth;
+        const maxY = window.innerHeight - floatingAd.offsetHeight;
+        const randomX = Math.floor(Math.random() * maxX);
+        const randomY = Math.floor(Math.random() * maxY);
+        floatingAd.style.left = randomX + 'px';
+        floatingAd.style.top = randomY + 'px';
+    }
+}
+
+// 每5秒随机改变浮动广告位置
+setInterval(randomFloatingPosition, 5000);
+</script>
 </body>
 </html>
