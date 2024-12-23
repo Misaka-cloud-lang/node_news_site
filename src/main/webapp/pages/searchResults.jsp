@@ -41,20 +41,27 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="../index.jsp">首页</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=国内">国内</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=国际">国际</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=经济">经济</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=科技">科技</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=娱乐">娱乐</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=体育">体育</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=教育">教育</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=健康">健康</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=文化">文化</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=军事">军事</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=国内">国内</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=国际">国际</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=体育">体育</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=科技">科技</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=娱乐">娱乐</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=财经">财经</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=军事">军事</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=社会">社会</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=股市">股市</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=美股">美股</a></li>
             </ul>
             <form class="d-flex ms-auto" action="news" method="get">
                 <input class="form-control me-2" type="text" name="query" placeholder="搜索新闻" required>
                 <button class="btn btn-outline-light" type="submit">搜索</button>
+                
+                <!-- 添加爬取按钮 -->
+                <a href="${pageContext.request.contextPath}/crawl-now" 
+                   class="btn btn-warning ms-2" 
+                   onclick="return confirm('确定要开始爬取新闻吗？')">
+                    爬取新闻
+                </a>
             </form>
         </div>
     </div>
