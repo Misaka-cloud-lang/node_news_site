@@ -228,7 +228,7 @@
 </script>
 <script>
     function catchAction(userId,tagName){
-        let adServer="localhost"
+        let adServer="localhost";
         let backend_url="http://"+adServer+":8080/receive/news";
         let backend_url_full=backend_url+"?userId="+userId+"&tagName="+tagName
         fetch(backend_url_full,{
