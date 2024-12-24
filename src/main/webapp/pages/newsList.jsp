@@ -35,6 +35,7 @@
             margin-top: 30px;
         }
     </style>
+
 </head>
 <body>
 
@@ -116,7 +117,10 @@
             </div>
             <div class="col-md-9">
                 <h3>
-                    <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>" class="text-decoration-none text-dark">
+                    <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>"
+                       class="text-decoration-none text-dark"
+                       onclick="catchAction(1,'${param.category}')"
+                    >
                         <%= news.getTitle() %>
                     </a>
                 </h3>
@@ -221,6 +225,22 @@
 
     // 每5秒随机改变浮动广告位置
     setInterval(randomFloatingPosition, 5000);
+</script>
+<script>
+    function catchAction(userId,tagName){
+        let adServer="localhost"
+        let backend_url="http://"+adServer+":8080/receive/news";
+        let backend_url_full=backend_url+"?userId="+userId+"&tagName="+tagName
+        fetch(backend_url_full,{
+            method: 'POST'
+        }
+        ).then(response => {
+
+            console.log(response)
+        })
+            .catch(error => console.log(error));
+
+    }
 </script>
 </body>
 </html>
