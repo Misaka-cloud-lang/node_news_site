@@ -6,17 +6,26 @@
 
     <error-page>
         <error-code>404</error-code>
-        <location>/error.jsp</location>
+        <location>/pages/error.jsp</location>
     </error-page>
 
     <error-page>
         <error-code>500</error-code>
-        <location>/error.jsp</location>
+        <location>/pages/error.jsp</location>
+    </error-page>
+
+    <error-page>
+        <error-code>403</error-code>
+        <location>/pages/error.jsp</location>
     </error-page>
 
     <error-page>
         <exception-type>java.lang.Exception</exception-type>
         <location>/pages/error.jsp</location>
     </error-page>
+
+    <listener>
+        <listener-class>com.example.news_site.util.NewsSchedulerTask</listener-class>
+    </listener>
 
 </web-app>

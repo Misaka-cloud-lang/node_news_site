@@ -56,14 +56,14 @@
                 <li class="nav-item"><a class="nav-link" href="../index.jsp">首页</a></li>
                 <li class="nav-item"><a class="nav-link" href="news?category=国内">国内</a></li>
                 <li class="nav-item"><a class="nav-link" href="news?category=国际">国际</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=经济">经济</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=体育">体育</a></li>
                 <li class="nav-item"><a class="nav-link" href="news?category=科技">科技</a></li>
                 <li class="nav-item"><a class="nav-link" href="news?category=娱乐">娱乐</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=体育">体育</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=教育">教育</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=健康">健康</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=文化">文化</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=财经">财经</a></li>
                 <li class="nav-item"><a class="nav-link" href="news?category=军事">军事</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=社会">社会</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=股市">股市</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=美股">美股</a></li>
             </ul>
             <form class="d-flex ms-auto" action="news" method="get">
                 <input class="form-control me-2" type="text" name="query" placeholder="搜索新闻" required>
@@ -183,7 +183,7 @@
             <div class="ad-space">
                 <h5 class="text-center mb-3">广告位 2</h5>
                 <img src="../images/ad2.jpg" alt="广告图片" class="img-fluid mb-2">
-                <p class="text-center mb-0">另一种广告形式</p>
+                <p class="text-center mb-0">另一种广告���式</p>
             </div>
         </div>
     </div>

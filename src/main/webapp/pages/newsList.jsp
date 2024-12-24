@@ -50,14 +50,14 @@
                 <li class="nav-item"><a class="nav-link" href="../index.jsp">首页</a></li>
                 <li class="nav-item"><a class="nav-link" href="?category=国内">国内</a></li>
                 <li class="nav-item"><a class="nav-link" href="?category=国际">国际</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=经济">经济</a></li>
+                <li class="nav-item"><a class="nav-link" href="?category=体育">体育</a></li>
                 <li class="nav-item"><a class="nav-link" href="?category=科技">科技</a></li>
                 <li class="nav-item"><a class="nav-link" href="?category=娱乐">娱乐</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=体育">体育</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=教育">教育</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=健康">健康</a></li>
-                <li class="nav-item"><a class="nav-link" href="?category=文化">文化</a></li>
+                <li class="nav-item"><a class="nav-link" href="?category=财经">财经</a></li>
                 <li class="nav-item"><a class="nav-link" href="?category=军事">军事</a></li>
+                <li class="nav-item"><a class="nav-link" href="?category=社会">社会</a></li>
+                <li class="nav-item"><a class="nav-link" href="?category=股市">股市</a></li>
+                <li class="nav-item"><a class="nav-link" href="?category=美股">美股</a></li>
             </ul>
             <form class="d-flex ms-auto" action="news" method="get">
                 <input class="form-control me-2" type="text" name="query" placeholder="搜索新闻" required>
@@ -66,7 +66,6 @@
         </div>
     </div>
 </nav>
-
 
 <div class="container mt-4">
     <!-- 头部广告 -->
@@ -124,13 +123,11 @@
                 <p class="news-description"><%= news.getDescription() %></p>
                 <div class="news-meta">
                     <span class="category badge bg-primary">分类：<%= news.getCategory() %></span>
-                    <!-- 添加新的信息字段 -->
                     <span class="author badge bg-secondary">作者：<%= news.getAuthor() %></span>
                     <span class="source badge bg-info">来源：<%= news.getSource() %></span>
                     <span class="time badge bg-dark">时间：<%= news.getPublishTime() %></span>
                     <span class="views badge bg-success">阅读：<%= news.getViews() %></span>
                     <span class="likes badge bg-danger">点赞：<%= news.getLikes() %></span>
-                    <!-- 添加标签 -->
                     <% if (news.getTags() != null && !news.getTags().isEmpty()) { %>
                         <div class="tags mt-2">
                             <% for (String tag : news.getTags().split(",")) { %>

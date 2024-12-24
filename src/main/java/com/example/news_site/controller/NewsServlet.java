@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Random;
 
 
-@WebServlet(name = "NewsServlet", urlPatterns = "/news")
+@WebServlet("/news")
 public class NewsServlet extends HttpServlet {
     private NewsDAO newsDao;
     private AdDAO adDAO;
@@ -52,7 +52,7 @@ public class NewsServlet extends HttpServlet {
         try {
             List<News> newsList = null;
 
-            // 获取本地广告
+            // 获取地广告
             // 头部广告（Logo或Banner）
             List<Advertisement> headerAds = adDAO.getAdsByType("BANNER");
             if (!headerAds.isEmpty()) {

@@ -7,6 +7,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class NewsDAO {
 
@@ -23,6 +26,8 @@ public class NewsDAO {
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            System.out.println("Preparing to insert news into database...");
             
             stmt.setString(1, news.getTitle());
             stmt.setString(2, news.getDescription());
@@ -45,16 +50,22 @@ public class NewsDAO {
                 stmt.setTimestamp(13, new java.sql.Timestamp(System.currentTimeMillis()));
             }
             
+            System.out.println("Executing SQL insert...");
             int rowsAffected = stmt.executeUpdate();
+            System.out.println("Insert result: " + rowsAffected + " rows affected");
+            
             return rowsAffected > 0;
         } catch (SQLException e) {
+            System.err.println("Error adding news: " + e.getMessage());
+            System.err.println("SQL State: " + e.getSQLState());
+            System.err.println("Error Code: " + e.getErrorCode());
             e.printStackTrace();
             return false;
         }
     }
 
     // 获取所有新闻
-    public List<News> getAllNews() throws SQLException {
+    public List<News> getAllNews() {
         List<News> newsList = new ArrayList<>();
         String sql = "SELECT * FROM news ORDER BY is_top DESC, publish_time DESC";
 
@@ -63,32 +74,16 @@ public class NewsDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                News news = new News();
-                news.setId(rs.getInt("id"));
-                news.setTitle(rs.getString("title"));
-                news.setDescription(rs.getString("description"));
-                news.setCategory(rs.getString("category"));
-                news.setImage(rs.getString("image"));
-                news.setAuthor(rs.getString("author"));
-                news.setSource(rs.getString("source"));
-                news.setPublishTime(rs.getTimestamp("publish_time"));
-                news.setUpdateTime(rs.getTimestamp("update_time"));
-                news.setViews(rs.getInt("views"));
-                news.setLikes(rs.getInt("likes"));
-                news.setTags(rs.getString("tags"));
-                news.setSummary(rs.getString("summary"));
-                news.setContentHtml(rs.getString("content_html"));
-                news.setRelatedImages(rs.getString("related_images"));
-                news.setTop(rs.getBoolean("is_top"));
-                news.setStatus(rs.getString("status"));
-                newsList.add(news);
+                newsList.add(mapResultSetToNews(rs));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return newsList;
     }
 
     // 根据ID获取新闻
-    public News getNewsById(int id) throws SQLException {
+    public News getNewsById(int id) {
         String sql = "SELECT * FROM news WHERE id = ?";
         
         try (Connection conn = dbConnection.getConnection();
@@ -97,31 +92,15 @@ public class NewsDAO {
             ResultSet rs = stmt.executeQuery();
             
             if (rs.next()) {
-                News news = new News();
-                news.setId(rs.getInt("id"));
-                news.setTitle(rs.getString("title"));
-                news.setDescription(rs.getString("description"));
-                news.setCategory(rs.getString("category"));
-                news.setImage(rs.getString("image"));
-                news.setAuthor(rs.getString("author"));
-                news.setSource(rs.getString("source"));
-                news.setPublishTime(rs.getTimestamp("publish_time"));
-                news.setUpdateTime(rs.getTimestamp("update_time"));
-                news.setViews(rs.getInt("views"));
-                news.setLikes(rs.getInt("likes"));
-                news.setTags(rs.getString("tags"));
-                news.setSummary(rs.getString("summary"));
-                news.setContentHtml(rs.getString("content_html"));
-                news.setRelatedImages(rs.getString("related_images"));
-                news.setTop(rs.getBoolean("is_top"));
-                news.setStatus(rs.getString("status"));
-                return news;
+                return mapResultSetToNews(rs);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-    // 根据新闻分类返回不同的颜色
+    // 根据新闻分类返回同的颜色
     private String getCategoryColor(String category) {
         switch (category) {
             case "国内": return "FF4D4F";
@@ -139,7 +118,7 @@ public class NewsDAO {
     }
 
     // 更新新闻
-    public void updateNews(News news) throws SQLException {
+    public boolean updateNews(News news) {
         String sql = "UPDATE news SET title = ?, description = ?, category = ?, " +
                      "image = ?, author = ?, source = ?, tags = ?, summary = ?, " +
                      "content_html = ?, related_images = ?, is_top = ?, status = ?, " +
@@ -161,60 +140,44 @@ public class NewsDAO {
             ps.setString(12, news.getStatus());
             ps.setInt(13, news.getId());
 
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
     // 删除新闻
-    public void deleteNews(int id) throws SQLException {
+    public boolean deleteNews(int id) {
         String sql = "DELETE FROM news WHERE id = ?";
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, id);
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
     // 搜索新闻
-    public List<News> searchNews(String keyword) throws SQLException {
+    public List<News> searchNews(String keyword) {
         List<News> newsList = new ArrayList<>();
-        String sql = "SELECT * FROM news WHERE status = 'published' AND " +
-                     "(title LIKE ? OR description LIKE ? OR content_html LIKE ? OR tags LIKE ?) " +
-                     "ORDER BY is_top DESC, publish_time DESC";
-
+        String sql = "SELECT * FROM news WHERE title LIKE ? OR content_html LIKE ? " +
+                    "ORDER BY is_top DESC, publish_time DESC";
         try (Connection conn = dbConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             String searchPattern = "%" + keyword + "%";
-            ps.setString(1, searchPattern);
-            ps.setString(2, searchPattern);
-            ps.setString(3, searchPattern);
-            ps.setString(4, searchPattern);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    News news = new News();
-                    news.setId(rs.getInt("id"));
-                    news.setTitle(rs.getString("title"));
-                    news.setDescription(rs.getString("description"));
-                    news.setCategory(rs.getString("category"));
-                    news.setImage(rs.getString("image"));
-                    news.setAuthor(rs.getString("author"));
-                    news.setSource(rs.getString("source"));
-                    news.setPublishTime(rs.getTimestamp("publish_time"));
-                    news.setUpdateTime(rs.getTimestamp("update_time"));
-                    news.setViews(rs.getInt("views"));
-                    news.setLikes(rs.getInt("likes"));
-                    news.setTags(rs.getString("tags"));
-                    news.setSummary(rs.getString("summary"));
-                    news.setContentHtml(rs.getString("content_html"));
-                    news.setRelatedImages(rs.getString("related_images"));
-                    news.setTop(rs.getBoolean("is_top"));
-                    news.setStatus(rs.getString("status"));
-                    newsList.add(news);
-                }
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                newsList.add(mapResultSetToNews(rs));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return newsList;
     }
@@ -332,7 +295,7 @@ public class NewsDAO {
         }
     }
 
-    // 查询将要删除的新闻（用于预览）
+    // 查询将删除的新闻（用于预览）
     public List<News> getNewsWithDefaultImages() throws SQLException {
         List<News> newsList = new ArrayList<>();
         String sql = "SELECT * FROM news WHERE " +
@@ -471,5 +434,169 @@ public class NewsDAO {
             ps.executeUpdate();
             System.out.println("新闻表已清空");
         }
+    }
+
+    // 添加批量插入方法
+    public int batchAddNews(List<News> newsList) throws SQLException {
+        if (newsList == null || newsList.isEmpty()) {
+            return 0;
+        }
+
+        System.out.println("准备插入 " + newsList.size() + " 条新闻");
+        
+        // 获取所有新闻标题
+        List<String> titles = new ArrayList<>();
+        for (News news : newsList) {
+            titles.add(news.getTitle());
+        }
+        
+        // 构建 IN 查询的占位符
+        String placeholders = String.join(",", Collections.nCopies(titles.size(), "?"));
+        String checkSql = "SELECT title FROM news WHERE title IN (" + placeholders + ")";
+        
+        try (Connection conn = dbConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            
+            // 检查已存在的新闻
+            Set<String> existingTitles = new HashSet<>();
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                for (int i = 0; i < titles.size(); i++) {
+                    checkStmt.setString(i + 1, titles.get(i));
+                }
+                ResultSet rs = checkStmt.executeQuery();
+                while (rs.next()) {
+                    existingTitles.add(rs.getString("title"));
+                }
+            }
+            
+            System.out.println("数据库中已存在 " + existingTitles.size() + " 条新闻");
+            
+            // 过滤出需要插入的新闻
+            List<News> newNewsList = new ArrayList<>();
+            for (News news : newsList) {
+                if (!existingTitles.contains(news.getTitle())) {
+                    newNewsList.add(news);
+                }
+            }
+            
+            System.out.println("实际需要插入 " + newNewsList.size() + " 条新闻");
+            
+            if (!newNewsList.isEmpty()) {
+                String sql = "INSERT INTO news (title, description, category, image, author, " +
+                            "source, publish_time, update_time, views, likes, tags, summary, " +
+                            "content_html, related_images, is_top, status) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                            
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    for (News news : newNewsList) {
+                        stmt.setString(1, news.getTitle());
+                        stmt.setString(2, news.getDescription());
+                        stmt.setString(3, news.getCategory());
+                        stmt.setString(4, news.getImage());
+                        stmt.setString(5, news.getAuthor());
+                        stmt.setString(6, news.getSource());
+                        stmt.setTimestamp(7, new java.sql.Timestamp(news.getPublishTime().getTime()));
+                        stmt.setTimestamp(8, new java.sql.Timestamp(news.getUpdateTime().getTime()));
+                        stmt.setInt(9, news.getViews());
+                        stmt.setInt(10, news.getLikes());
+                        stmt.setString(11, news.getTags());
+                        stmt.setString(12, news.getSummary());
+                        stmt.setString(13, news.getContentHtml());
+                        stmt.setString(14, news.getRelatedImages());
+                        stmt.setBoolean(15, news.isTop());
+                        stmt.setString(16, news.getStatus());
+                        
+                        stmt.addBatch();
+                    }
+                    
+                    int[] results = stmt.executeBatch();
+                    conn.commit();
+                    
+                    int successCount = 0;
+                    for (int result : results) {
+                        if (result > 0) {
+                            successCount++;
+                        }
+                    }
+                    
+                    System.out.println("成功插入 " + successCount + " 条新闻");
+                    return successCount;
+                }
+            }
+            
+            return 0;
+        } catch (SQLException e) {
+            System.err.println("批量插入新闻失败: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // 添加 getNewsByTitles 方法
+    public List<News> getNewsByTitles(List<String> titles) throws SQLException {
+        List<News> newsList = new ArrayList<>();
+        if (titles == null || titles.isEmpty()) {
+            return newsList;
+        }
+
+        // 构建 IN 查询的占位符
+        String placeholders = String.join(",", Collections.nCopies(titles.size(), "?"));
+        String sql = "SELECT * FROM news WHERE title IN (" + placeholders + ")";
+
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            // 设置所有标题参数
+            for (int i = 0; i < titles.size(); i++) {
+                stmt.setString(i + 1, titles.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                News news = new News();
+                news.setId(rs.getInt("id"));
+                news.setTitle(rs.getString("title"));
+                news.setDescription(rs.getString("description"));
+                news.setCategory(rs.getString("category"));
+                news.setImage(rs.getString("image"));
+                news.setAuthor(rs.getString("author"));
+                news.setSource(rs.getString("source"));
+                news.setPublishTime(rs.getTimestamp("publish_time"));
+                news.setUpdateTime(rs.getTimestamp("update_time"));
+                news.setViews(rs.getInt("views"));
+                news.setLikes(rs.getInt("likes"));
+                news.setTags(rs.getString("tags"));
+                news.setSummary(rs.getString("summary"));
+                news.setContentHtml(rs.getString("content_html"));
+                news.setRelatedImages(rs.getString("related_images"));
+                news.setTop(rs.getBoolean("is_top"));
+                news.setStatus(rs.getString("status"));
+                newsList.add(news);
+            }
+        }
+
+        return newsList;
+    }
+
+    private News mapResultSetToNews(ResultSet rs) throws SQLException {
+        News news = new News();
+        news.setId(rs.getInt("id"));
+        news.setTitle(rs.getString("title"));
+        news.setDescription(rs.getString("description"));
+        news.setCategory(rs.getString("category"));
+        news.setImage(rs.getString("image"));
+        news.setAuthor(rs.getString("author"));
+        news.setSource(rs.getString("source"));
+        news.setPublishTime(rs.getTimestamp("publish_time"));
+        news.setUpdateTime(rs.getTimestamp("update_time"));
+        news.setViews(rs.getInt("views"));
+        news.setLikes(rs.getInt("likes"));
+        news.setTags(rs.getString("tags"));
+        news.setSummary(rs.getString("summary"));
+        news.setContentHtml(rs.getString("content_html"));
+        news.setRelatedImages(rs.getString("related_images"));
+        news.setTop(rs.getBoolean("is_top"));
+        news.setStatus(rs.getString("status"));
+        return news;
     }
 }

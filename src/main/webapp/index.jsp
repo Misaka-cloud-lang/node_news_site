@@ -38,17 +38,17 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/index.jsp">首页</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=国内">国内</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=国际">国际</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=经济">经济</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=科技">科技</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=娱乐">娱乐</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=体育">体育</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=教育">教育</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=健康">健康</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=文化">文化</a></li>
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/news?category=军事">军事</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.jsp">首页</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=国内">国内</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=国际">国际</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=体育">体育</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=科技">科技</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=娱乐">娱乐</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=财经">财经</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=军事">军事</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=社会">社会</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=股市">股市</a></li>
+                <li class="nav-item"><a class="nav-link" href="news?category=美股">美股</a></li>
             </ul>
             <form class="d-flex ms-auto" action="${pageContext.request.contextPath}/news" method="get">
                 <input class="form-control me-2" type="text" name="query" placeholder="搜索新闻" required>
@@ -138,7 +138,7 @@
     <p>&copy; 2024 上海理工大学. 版权所有.</p>
 </footer>
 
-<!-- 将爬虫按钮移到页面底部，��添加管理员检查 -->
+<!-- 将爬虫按钮移到页面底部，添加管理员检查 -->
 <% if (session.getAttribute("isAdmin") != null && (Boolean)session.getAttribute("isAdmin")) { %>
     <div class="container mt-3 mb-3">
         <button class="btn btn-primary" onclick="crawlNews()">手动更新新闻数据</button>

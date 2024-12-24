@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>系统错误</title>
+    <title>错误页面</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -24,14 +24,6 @@
             color: #d32f2f;
             margin-bottom: 20px;
         }
-        .error-details {
-            color: #666;
-            margin: 20px 0;
-            text-align: left;
-            padding: 10px;
-            background-color: #f8f8f8;
-            border-radius: 4px;
-        }
         .back-link {
             display: inline-block;
             margin-top: 20px;
@@ -45,12 +37,10 @@
 </head>
 <body>
     <div class="error-container">
-        <h1>系统错误</h1>
-        <p>抱歉，系统处理您的请求时出现错误。</p>
-        <div class="error-details">
-            <p>错误类型：${pageContext.exception.getClass().getName()}</p>
-            <p>错误信息：${pageContext.exception.message}</p>
-        </div>
+        <h1>出错了！</h1>
+        <p>抱歉，页面访问出现错误。</p>
+        <p>错误代码：${pageContext.errorData.statusCode}</p>
+        <p>错误信息：${pageContext.exception.message}</p>
         <a href="/" class="back-link">返回首页</a>
     </div>
 </body>
