@@ -112,7 +112,10 @@
                     </div>
                     <div class="col-md-9">
                         <h3>
-                            <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>" class="text-decoration-none text-dark">
+                            <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>"
+                               class="text-decoration-none text-dark"
+                               onclick="catchAction(1,'<%=news.getCategory()%>')"
+                            >
                                 <%= news.getTitle() %>
                             </a>
                         </h3>
@@ -208,5 +211,22 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function catchAction(userId,tagName){
+        let adServer="localhost";
+        let backend_url="http://"+adServer+":8080/receive/news";
+        let backend_url_full=backend_url+"?userId="+userId+"&tagName="+tagName
+        fetch(backend_url_full,{
+                method: 'POST'
+            }
+        ).then(response => {
+
+            console.log(response)
+        })
+            .catch(error => console.log(error));
+
+    }
+</script>
+
 </body>
 </html>
