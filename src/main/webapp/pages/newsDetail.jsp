@@ -183,7 +183,7 @@
             <div class="ad-space">
                 <h5 class="text-center mb-3">广告位 2</h5>
                 <img src="../images/ad2.jpg" alt="广告图片" class="img-fluid mb-2">
-                <p class="text-center mb-0">另一种广告���式</p>
+                <p class="text-center mb-0">另一种广告形式</p>
             </div>
         </div>
     </div>
