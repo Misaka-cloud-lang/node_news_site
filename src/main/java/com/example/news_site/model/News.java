@@ -1,6 +1,7 @@
 package com.example.news_site.model;
 
 import java.util.Date;
+import java.sql.Timestamp;
 
 public class News {
 
@@ -21,6 +22,7 @@ public class News {
     private String relatedImages;
     private boolean isTop;
     private String status;
+    private String content;
 
     // 构造函数
     public News() {}
@@ -174,6 +176,14 @@ public class News {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     @Override

@@ -3,7 +3,11 @@ package com.example.news_site.service;
 import com.example.news_site.dao.NewsDAO;
 import com.example.news_site.model.News;
 import com.example.news_site.util.NewsCrawler;
+import com.example.news_site.util.DBConnection;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,10 +17,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NewsService {
     private NewsDAO newsDAO;
     private NewsCrawler newsCrawler;
+
+    // 添加缓存
+    private static Map<String, List<News>> categoryCache = new ConcurrentHashMap<>();
+    private static Map<Integer, News> newsCache = new ConcurrentHashMap<>();
+    private static long lastCacheUpdate = 0;
+    private static final long CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
 
     public NewsService() {
         this.newsDAO = new NewsDAO();
@@ -40,7 +53,14 @@ public class NewsService {
 
     // 根据ID获取新闻
     public News getNewsById(int id) {
-        return newsDAO.getNewsById(id);
+        return newsCache.computeIfAbsent(id, k -> {
+            try {
+                return newsDAO.getNewsById(id);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
     }
 
     // 更新新闻
@@ -54,12 +74,22 @@ public class NewsService {
     }
 
     public List<News> getNewsByCategory(String category) {
-        try {
-            return newsDAO.getNewsByCategory(category);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
+        // 检查缓存是否过期
+        if (System.currentTimeMillis() - lastCacheUpdate > CACHE_DURATION) {
+            categoryCache.clear();
+            newsCache.clear();
+            lastCacheUpdate = System.currentTimeMillis();
         }
+
+        // 从缓存获取
+        return categoryCache.computeIfAbsent(category, k -> {
+            try {
+                return newsDAO.getNewsByCategory(category);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new ArrayList<>();
+            }
+        });
     }
 
     public int getNewsTotalByCategory(String category) {
@@ -157,14 +187,20 @@ public class NewsService {
     }
 
     // 修改 crawlNewsByCategory 方法
-    public List<News> crawlNewsByCategory(String category, int limit) {
+    public void crawlNewsByCategory(String category) {
         try {
-            // 默认爬取10条
-            return newsCrawler.crawlNewsFromSina(category);
+            System.out.println("开始爬取 " + category + " 分类的新闻...");
+            List<News> newsList = newsCrawler.crawlNewsFromSina(category);
+            
+            if (!newsList.isEmpty()) {
+                System.out.println("爬取完成，共获取 " + newsList.size() + " 条新闻");
+                insertNewsList(newsList);
+            } else {
+                System.out.println("没有爬取到新闻");
+            }
         } catch (Exception e) {
-            System.err.println("爬取分类新闻失败: " + e.getMessage());
+            System.err.println("爬取失败：" + e.getMessage());
             e.printStackTrace();
-            return new ArrayList<>();
         }
     }
 
@@ -322,5 +358,84 @@ public class NewsService {
             e.printStackTrace();
             throw new RuntimeException("爬取失败", e);
         }
+    }
+
+    // 修改 getLatestNews 方法
+    public List<News> getLatestNews(int limit) {
+        List<News> newsList = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DBConnection.getConnection();
+            String sql = "SELECT * FROM news ORDER BY publish_time DESC LIMIT ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, limit);
+            rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                News news = new News();
+                news.setId(rs.getInt("id"));
+                news.setTitle(rs.getString("title"));
+                news.setDescription(rs.getString("description"));
+                news.setImage(rs.getString("image"));
+                news.setCategory(rs.getString("category"));
+                news.setAuthor(rs.getString("author"));
+                news.setSource(rs.getString("source"));
+                
+                // 修改日期处理
+                Timestamp timestamp = rs.getTimestamp("publish_time");
+                if (timestamp != null) {
+                    news.setPublishTime(new Date(timestamp.getTime()));
+                }
+                
+                news.setViews(rs.getInt("views"));
+                news.setLikes(rs.getInt("likes"));
+                news.setTags(rs.getString("tags"));
+                newsList.add(news);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBConnection.closeAll(rs, stmt, conn);
+        }
+        
+        return newsList;
+    }
+
+    // 获取热门新闻
+    public List<News> getTopNews(int limit) {
+        List<News> allNews = getAllNews();
+        // 按照浏览量排序
+        Collections.sort(allNews, (a, b) -> b.getViews() - a.getViews());
+        return allNews.subList(0, Math.min(limit, allNews.size()));
+    }
+
+    // 获取今日新闻数量（展示用）
+    public int getTodayNewsCount() {
+        // 为了展示效果，返回一个固定值
+        return 28;
+    }
+
+    // 获取总浏览量（展示用）
+    public int getTotalViews() {
+        // 为了展示效果，返回一个固定值
+        return 12580;
+    }
+
+    // 获取在线用户数（展示用）
+    public int getOnlineUsers() {
+        // 为了展示效果，返回一个固定值
+        return 365;
+    }
+
+    // 获取随机新闻
+    public List<News> getRandomNews(int limit) {
+        List<News> allNews = getAllNews();
+        // 打乱新闻列表
+        Collections.shuffle(allNews);
+        // 返回指定数量的新闻
+        return allNews.subList(0, Math.min(limit, allNews.size()));
     }
 }

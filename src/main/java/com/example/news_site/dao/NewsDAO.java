@@ -84,20 +84,32 @@ public class NewsDAO {
 
     // 根据ID获取新闻
     public News getNewsById(int id) {
-        String sql = "SELECT * FROM news WHERE id = ?";
+        News news = null;
+        String sql = "SELECT id, title, description, content, image, category, source, publish_time, views FROM news WHERE id = ?";
         
-        try (Connection conn = dbConnection.getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             
             if (rs.next()) {
-                return mapResultSetToNews(rs);
+                news = new News();
+                news.setId(rs.getInt("id"));
+                news.setTitle(rs.getString("title"));
+                news.setDescription(rs.getString("description"));
+                news.setContent(rs.getString("content"));
+                news.setImage(rs.getString("image"));
+                news.setCategory(rs.getString("category"));
+                news.setSource(rs.getString("source"));
+                news.setPublishTime(rs.getTimestamp("publish_time"));
+                news.setViews(rs.getInt("views"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        
+        return news;
     }
 
     // 根据新闻分类返回同的颜色

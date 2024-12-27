@@ -2,259 +2,167 @@
 <%@ page import="com.example.news_site.service.NewsService" %>
 <%@ page import="com.example.news_site.model.News" %>
 <%@ page import="java.util.List" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<%
+    String query = request.getParameter("query");
+    NewsService newsService = new NewsService();
+    List<News> searchResults = null;
+    
+    // 获取页码参数
+    int currentPage = 1;
+    try {
+        String pageStr = request.getParameter("page");
+        if (pageStr != null) {
+            currentPage = Integer.parseInt(pageStr);
+        }
+    } catch (NumberFormatException e) {
+        currentPage = 1;
+    }
+    
+    // 每页显示的新闻数量
+    final int PAGE_SIZE = 10;
+    
+    if (query != null && !query.trim().isEmpty()) {
+        searchResults = newsService.searchNews(query.trim());
+    }
+    
+    // 计算分页
+    int total = searchResults != null ? searchResults.size() : 0;
+    int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
+    
+    // 确保当前页码有效
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    
+    // 获取当前页的新闻
+    List<News> currentPageResults = null;
+    if (searchResults != null && !searchResults.isEmpty()) {
+        int startIndex = (currentPage - 1) * PAGE_SIZE;
+        int endIndex = Math.min(startIndex + PAGE_SIZE, total);
+        currentPageResults = searchResults.subList(startIndex, endIndex);
+    }
+%>
 
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>搜索结果</title>
+    <title>搜索结果 - USST新闻网</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/ad.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common.css">
     <style>
-        .news-item {
-            border-bottom: 1px solid #eee;
-            padding: 20px 0;
+        .news-card {
+            transition: transform 0.3s ease;
             margin-bottom: 20px;
         }
-        .news-image {
-            width: 200px;
-            height: 150px;
-            object-fit: cover;
+        .news-card:hover {
+            transform: translateY(-5px);
         }
-        .highlight {
+        .search-highlight {
             background-color: yellow;
             padding: 2px;
         }
     </style>
 </head>
 <body>
+    <jsp:include page="common/navbar.jsp" />
 
-<!-- 导航栏 -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="../index.jsp">usst在线新闻网站</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="../index.jsp">首页</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=国内">国内</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=国际">国际</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=体育">体育</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=科技">科技</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=娱乐">娱乐</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=财经">财经</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=军事">军事</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=社会">社会</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=股市">股市</a></li>
-                <li class="nav-item"><a class="nav-link" href="news?category=美股">美股</a></li>
-            </ul>
-            <form class="d-flex ms-auto" action="news" method="get">
-                <input class="form-control me-2" type="text" name="query" placeholder="搜索新闻" required>
-                <button class="btn btn-outline-light" type="submit">搜索</button>
+    <div class="container mt-4">
+        <!-- 面包屑导航 -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="../index.jsp">首页</a></li>
+                <li class="breadcrumb-item active">搜索结果</li>
+            </ol>
+        </nav>
+
+        <% if (query != null && !query.trim().isEmpty()) { %>
+            <h2 class="mb-4">搜索结果: "<%= query %>"</h2>
+            
+            <% if (currentPageResults != null && !currentPageResults.isEmpty()) { %>
+                <p class="text-muted">找到 <%= total %> 条相关新闻</p>
                 
-                <!-- 添加爬取按钮 -->
-                <a href="${pageContext.request.contextPath}/crawl-now" 
-                   class="btn btn-warning ms-2" 
-                   onclick="return confirm('确定要开始爬取新闻吗？')">
-                    爬取新闻
-                </a>
-            </form>
-        </div>
-    </div>
-</nav>
-
-<div class="container mt-4">
-    <!-- 搜索结果顶部广告 -->
-    <jsp:include page="_ad.jsp">
-        <jsp:param name="position" value="header"/>
-    </jsp:include>
-    
-    <div class="row">
-        <div class="col-md-9">
-            <h2>搜索结果：${param.query}</h2>
-
-            <!-- 每5个结果后插入内容广告 -->
-            <% if (resultCount % 5 == 0) { %>
-                <jsp:include page="_ad.jsp">
-                    <jsp:param name="position" value="content"/>
-                </jsp:include>
-            <% } %>
-
-            <%
-                String query = request.getParameter("query");
-                int currentPage = request.getParameter("page") != null ?
-                        Integer.parseInt(request.getParameter("page")) : 1;
-                int pageSize = 10;
-
-                NewsService newsService = new NewsService();
-                List<News> searchResults = newsService.searchNews(query);
-                int total = searchResults.size();
-                int totalPages = (int) Math.ceil((double) total / pageSize);
-
-                int start = (currentPage - 1) * pageSize;
-                int end = Math.min(start + pageSize, total);
-                List<News> pageResults = searchResults.subList(start, end);
-
-                if (pageResults.isEmpty()) {
-            %>
-            <div class="alert alert-info mt-4">
-                未找到相关新闻，请尝试其他关键词。
-            </div>
-            <%
-            } else {
-                for (News news : pageResults) {
-            %>
-            <div class="news-item">
+                <!-- 搜索结果列表 -->
                 <div class="row">
-                    <div class="col-md-3">
-                        <img src="<%= news.getImage() %>" class="news-image img-fluid" alt="新闻图片"
-                             onerror="this.src='../images/default.jpg'">
-                    </div>
-                    <div class="col-md-9">
-                        <h3>
-                            <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>"
-                               class="text-decoration-none text-dark"
-                               onclick="catchAction(1,'<%=news.getCategory()%>')"
-                            >
-                                <%= news.getTitle() %>
-                            </a>
-                        </h3>
-                        <p class="news-description"><%= news.getDescription() %></p>
-                        <div class="news-meta">
-                            <span class="category badge bg-primary">分类：<%= news.getCategory() %></span>
-                            <!-- 添加新的信息字段 -->
-                            <span class="author badge bg-secondary">作者：<%= news.getAuthor() %></span>
-                            <span class="source badge bg-info">来源：<%= news.getSource() %></span>
-                            <span class="time badge bg-dark">时间：<%= news.getPublishTime() %></span>
-                            <span class="views badge bg-success">阅读：<%= news.getViews() %></span>
-                            <span class="likes badge bg-danger">点赞：<%= news.getLikes() %></span>
-                            <!-- 添加标签 -->
-                            <% if (news.getTags() != null && !news.getTags().isEmpty()) { %>
-                            <div class="tags mt-2">
-                                <% for (String tag : news.getTags().split(",")) { %>
-                                <span class="badge bg-light text-dark"><%= tag %></span>
-                                <% } %>
+                    <% for (News news : currentPageResults) { %>
+                        <div class="col-md-12 mb-4">
+                            <div class="card news-card">
+                                <div class="row g-0">
+                                    <div class="col-md-3">
+                                        <img src="<%= news.getImage() %>" 
+                                             class="img-fluid rounded-start h-100" 
+                                             alt="新闻图片"
+                                             style="object-fit: cover;"
+                                             onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/images/default.jpg'">
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <a href="newsDetail.jsp?id=<%= news.getId() %>" 
+                                                   class="text-dark text-decoration-none">
+                                                    <%= news.getTitle() %>
+                                                </a>
+                                            </h5>
+                                            <p class="card-text"><%= news.getDescription() %></p>
+                                            <p class="card-text">
+                                                <small class="text-muted">
+                                                    <i class="bi bi-calendar"></i> <%= news.getPublishTime() %> &nbsp;
+                                                    <i class="bi bi-tag"></i> <%= news.getCategory() %> &nbsp;
+                                                    <i class="bi bi-eye"></i> <%= news.getViews() %> 阅读
+                                                </small>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <% } %>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <%
-                }
-            }
-            %>
-
-            <!-- 中间广告 -->
-            <div class="ad-container">
-                <span class="ad-tag">广告</span>
-                <jsp:include page="_ad.jsp">
-                    <jsp:param name="position" value="between"/>
-                </jsp:include>
-            </div>
-
-            <!-- 分页导航 -->
-            <% if (totalPages > 1) { %>
-            <nav aria-label="Search results pages">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item <%= currentPage == 1 ? "disabled" : "" %>">
-                        <a class="page-link" href="?query=${param.query}&page=<%= currentPage-1 %>">
-                            上一页
-                        </a>
-                    </li>
-
-                    <% for(int i = 1; i <= totalPages; i++) { %>
-                    <li class="page-item <%= currentPage == i ? "active" : "" %>">
-                        <a class="page-link" href="?query=${param.query}&page=<%= i %>">
-                            <%= i %>
-                        </a>
-                    </li>
                     <% } %>
-
-                    <li class="page-item <%= currentPage == totalPages ? "disabled" : "" %>">
-                        <a class="page-link" href="?query=${param.query}&page=<%= currentPage+1 %>">
-                            下一页
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <% } %>
-        </div>
-
-        <!-- 右侧边栏 -->
-        <div class="col-md-3">
-            <!-- 搜索框 -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">搜索新闻</h5>
-                    <form action="${pageContext.request.contextPath}/news" method="get">
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="query"
-                                   value="${param.query}" placeholder="输入关键词">
-                            <button class="btn btn-primary" type="submit">搜索</button>
-                        </div>
-                    </form>
                 </div>
-            </div>
 
-            <!-- 侧边栏广告 -->
-            <div class="ad-container sticky-top">
-                <span class="ad-tag">广告</span>
-                <jsp:include page="_ad.jsp">
-                    <jsp:param name="position" value="sidebar"/>
-                </jsp:include>
-            </div>
-        </div>
+                <!-- 分页导航 -->
+                <% if (totalPages > 1) { %>
+                    <nav aria-label="Search results pages">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item <%= currentPage == 1 ? "disabled" : "" %>">
+                                <a class="page-link" href="?query=<%= query %>&page=<%= currentPage - 1 %>">上一页</a>
+                            </li>
+                            
+                            <% for (int i = 1; i <= totalPages; i++) { %>
+                                <li class="page-item <%= i == currentPage ? "active" : "" %>">
+                                    <a class="page-link" href="?query=<%= query %>&page=<%= i %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                            
+                            <li class="page-item <%= currentPage == totalPages ? "disabled" : "" %>">
+                                <a class="page-link" href="?query=<%= query %>&page=<%= currentPage + 1 %>">下一页</a>
+                            </li>
+                        </ul>
+                    </nav>
+                <% } %>
+            <% } else { %>
+                <div class="alert alert-info" role="alert">
+                    未找到相关新闻
+                </div>
+            <% } %>
+        <% } %>
     </div>
-</div>
 
-<!-- 在搜索结果顶部添加广告 -->
-<div class="container mt-2">
-    <jsp:include page="_ad.jsp">
-        <jsp:param name="position" value="search_top"/>
-    </jsp:include>
-</div>
+    <!-- 底部广告位 -->
+    <div class="mt-4">
+        <jsp:include page="_ad.jsp">
+            <jsp:param name="position" value="search_bottom"/>
+        </jsp:include>
+    </div>
 
-<!-- 在搜索结果中添加广告 -->
-<%
-    if (resultCount % 3 == 0) { // 每3个结果显示一次广告
-%>
-    <jsp:include page="_ad.jsp">
-        <jsp:param name="position" value="search_content"/>
-    </jsp:include>
-<% } %>
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2024 USST新闻网. 版权所有.</p>
+        </div>
+    </footer>
 
-<!-- 在搜索结果底部添加广告 -->
-<div class="mt-4">
-    <jsp:include page="_ad.jsp">
-        <jsp:param name="position" value="search_bottom"/>
-    </jsp:include>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    function catchAction(userId, tagName) {
-        let success = "catch success";
-        let adServer = "112.124.63.147";
-        let backend_url = "http://" + adServer + ":8080/receive/news";
-        let backend_url_full = backend_url + "?userId=" + userId + "&tagName=" + tagName
-        alert(backend_url_full)
-        fetch(backend_url_full, {
-                method: 'POST'
-            }
-        ).then(response => {
-
-            console.log(response)
-            alert(success)
-        })
-            .catch(error => alert(error));
-
-    }
-</script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -236,15 +236,14 @@
     function handleAdError(iframe) {
         const position = iframe.id.replace('ad-frame-', '');
         const loading = document.getElementById('loading-' + position);
-        const error = document.getElementById('error-' + position);
         const placeholder = document.getElementById('placeholder-' + position);
         
         loading.style.display = 'none';
-        error.style.display = 'none';  // 不显示错误信息
         iframe.style.display = 'none';
-        placeholder.style.display = 'block';  // 显示占位符
+        placeholder.style.display = 'block';
         
-        console.warn('广告加载失败:', position);  // 只在控制台输出错误
+        // 只在控制台输出错误，不影响用户体验
+        console.warn('广告加载失败:', position);
     }
     
     // 自适应 iframe 高度
@@ -268,14 +267,20 @@
             userAgent: navigator.userAgent
         };
         
-        // 发送统计数据到服务器
+        // 修改 fetch 请求配置
         fetch('http://<%= adServer %>/ad/impression', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'  // 添加跨域头
             },
+            mode: 'cors',  // 添加 cors 模式
+            credentials: 'omit',  // 不发送 cookies
             body: JSON.stringify(data)
-        }).catch(error => console.warn('统计请求失败:', error));
+        }).catch(error => {
+            console.warn('广告统计请求失败:', error);
+            // 失败时静默处理，不影响用户体验
+        });
     }
     
     // 添加广告可见性检测
