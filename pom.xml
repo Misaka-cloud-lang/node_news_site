@@ -124,6 +124,17 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <contextReloadable>true</contextReloadable>
+                    <backgroundProcessorDelay>1</backgroundProcessorDelay>
+                    <path>/news</path>
+                    <port>8080</port>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

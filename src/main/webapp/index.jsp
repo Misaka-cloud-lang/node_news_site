@@ -91,8 +91,17 @@
     </button>
 </div>
 
-<!-- 新闻分类 -->
+<!-- 在轮播图下方添加顶部广告 -->
 <div class="container mt-4">
+    <!-- 顶部广告 -->
+    <div class="ad-container header-ad">
+        <span class="ad-tag">广告</span>
+        <jsp:include page="pages/_ad.jsp">
+            <jsp:param name="position" value="header"/>
+        </jsp:include>
+    </div>
+
+    <!-- 新闻分类 -->
     <h4>新闻分类</h4>
     <div class="row">
         <div class="col-md-3"><a href="${pageContext.request.contextPath}/news?category=国内" class="btn btn-outline-primary d-block">国内新闻</a></div>
@@ -110,27 +119,60 @@
 
 <!-- 最新新闻 -->
 <div class="container mt-4">
-    <h4>最新新闻</h4>
-    <div class="row" id="newsList">
-        <%
-            NewsService newsService = new NewsService();
-            List<News> latestNews = newsService.getAllNews();
-            for (News news : latestNews) {
-        %>
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <img src="<%= news.getImage() %>" class="card-img-top" alt="新闻图片" onerror="this.src='/news_system/images/default.jpg'">
-                <div class="card-body">
-                    <h5 class="card-title"><%= news.getTitle() %></h5>
-                    <p class="card-text"><%= news.getDescription() %></p>
-                    <p class="card-text"><small class="text-muted">分类：<%= news.getCategory() %></small></p>
-                </div>
+    <div class="row">
+        <!-- 左侧新闻列表 -->
+        <div class="col-md-9">
+            <h4>最新新闻</h4>
+            <div class="row" id="newsList">
+                <%
+                    NewsService newsService = new NewsService();
+                    List<News> latestNews = newsService.getAllNews();
+                    int newsCount = 0;
+                    for (News news : latestNews) {
+                        newsCount++;
+                %>
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="<%= news.getImage() %>" class="card-img-top" alt="新闻图片" onerror="this.src='/news_system/images/default.jpg'">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= news.getTitle() %></h5>
+                                <p class="card-text"><%= news.getDescription() %></p>
+                                <p class="card-text"><small class="text-muted">分类：<%= news.getCategory() %></small></p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 每3条新闻后插入广告 -->
+                    <% if (newsCount % 3 == 0) { %>
+                        <div class="col-md-12">
+                            <div class="ad-container content-ad">
+                                <span class="ad-tag">广告</span>
+                                <jsp:include page="pages/_ad.jsp">
+                                    <jsp:param name="position" value="content"/>
+                                </jsp:include>
+                            </div>
+                        </div>
+                    <% } %>
+                <% } %>
             </div>
         </div>
-        <%
-            }
-        %>
+        
+        <!-- 右侧广告栏 -->
+        <div class="col-md-3">
+            <div class="sticky-top" style="top: 20px;">
+                <jsp:include page="pages/_ad.jsp">
+                    <jsp:param name="position" value="sidebar"/>
+                </jsp:include>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- 底部广告 -->
+<div class="ad-container footer-ad mt-4">
+    <span class="ad-tag">广告</span>
+    <jsp:include page="pages/_ad.jsp">
+        <jsp:param name="position" value="footer"/>
+    </jsp:include>
 </div>
 
 <!-- 底部 -->

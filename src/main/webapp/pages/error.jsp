@@ -53,5 +53,14 @@
         </div>
         <a href="/" class="back-link">返回首页</a>
     </div>
+    <div class="container mt-4">
+        <!-- 添加一个小广告 -->
+        <div class="mt-4">
+            <jsp:include page="_ad.jsp">
+                <jsp:param name="position" value="content"/>
+                <jsp:param name="size" value="small"/>
+            </jsp:include>
+        </div>
+    </div>
 </body>
 </html> 

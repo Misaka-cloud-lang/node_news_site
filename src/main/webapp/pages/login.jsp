@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
-    <div class="container">
+    <div class="container mt-4">
         <div class="row justify-content-center mt-5">
             <div class="col-md-4">
                 <div class="card">
@@ -30,6 +30,14 @@
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- 底部小广告 -->
+        <div class="mt-4">
+            <jsp:include page="_ad.jsp">
+                <jsp:param name="position" value="footer"/>
+                <jsp:param name="size" value="small"/>
+            </jsp:include>
         </div>
     </div>
 </body>

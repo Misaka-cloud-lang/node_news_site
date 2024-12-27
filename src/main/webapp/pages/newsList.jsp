@@ -17,22 +17,52 @@
             padding: 20px 0;
             margin-bottom: 20px;
         }
+
         .news-image {
             width: 200px;
             height: 150px;
             object-fit: cover;
         }
+
         .news-meta {
             color: #666;
             font-size: 0.9em;
             margin-top: 10px;
         }
+
         .news-description {
             margin: 10px 0;
             color: #666;
         }
+
         .pagination {
             margin-top: 30px;
+        }
+
+        .ad-container {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            position: relative;
+            border: 1px solid #e9ecef;
+        }
+
+        .ad-tag {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background-color: #6c757d;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .sidebar-ad {
+            position: sticky;
+            top: 20px;
+            margin-bottom: 20px;
         }
     </style>
 
@@ -68,177 +98,154 @@
     </div>
 </nav>
 
+<div class="container mt-2">
+    <jsp:include page="_ad.jsp">
+        <jsp:param name="position" value="nav_bottom"/>
+    </jsp:include>
+</div>
+
 <div class="container mt-4">
-    <!-- 头部广告 -->
-    <c:if test="${not empty headerAd}">
-        <div class="ad-container header-ad">
-            <c:choose>
-                <c:when test="${headerAd.type eq 'BANNER'}">
-                    <div class="banner-ad">
-                        <a href="#" target="_blank">
-                            <img src="${headerAd.imageUrl}" alt="${headerAd.content}">
-                        </a>
-                    </div>
-                </c:when>
-                <c:when test="${headerAd.type eq 'SCROLL_TEXT'}">
-                    <div class="scroll-text">
-                        <marquee>${headerAd.content}</marquee>
-                    </div>
-                </c:when>
-            </c:choose>
-        </div>
-    </c:if>
-
     <h2 class="mb-4">${param.category}新闻</h2>
+    <jsp:include page="_ad.jsp">
+        <jsp:param name="position" value="header"/>
+        <jsp:param name="size" value="large"/>
+    </jsp:include>
+    
+    <div class="row">
+        <!-- 左侧新闻列表 -->
+        <div class="col-md-9">
+            <%
+                String category = request.getParameter("category");
+                int currentPage = request.getParameter("page") != null ?
+                        Integer.parseInt(request.getParameter("page")) : 1;
+                int pageSize = 10; // 每页显示10条新闻
 
-    <%
-        String category = request.getParameter("category");
-        int currentPage = request.getParameter("page") != null ?
-            Integer.parseInt(request.getParameter("page")) : 1;
-        int pageSize = 10; // 每页显示10条新闻
+                NewsService newsService = new NewsService();
+                List<News> allNews = newsService.getNewsByCategory(category);
+                int total = allNews.size();
+                int totalPages = (int) Math.ceil((double) total / pageSize);
 
-        NewsService newsService = new NewsService();
-        List<News> allNews = newsService.getNewsByCategory(category);
-        int total = allNews.size();
-        int totalPages = (int) Math.ceil((double) total / pageSize);
+                // 计算当前页的新闻
+                int start = (currentPage - 1) * pageSize;
+                int end = Math.min(start + pageSize, total);
+                List<News> pageNews = allNews.subList(start, end);
 
-        // 计算当前页的新闻
-        int start = (currentPage - 1) * pageSize;
-        int end = Math.min(start + pageSize, total);
-        List<News> pageNews = allNews.subList(start, end);
-
-        for (News news : pageNews) {
-    %>
-    <div class="news-item">
-        <div class="row">
-            <div class="col-md-3">
-                <img src="<%= news.getImage() %>" class="news-image img-fluid" alt="新闻图片"
-                     onerror="this.src='../images/default.jpg'">
-            </div>
-            <div class="col-md-9">
-                <h3>
-                    <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>"
-                       class="text-decoration-none text-dark"
-               
-                    > <!-- onclick="catchAction(1,'${param.category}')" -->
-                        <%= news.getTitle() %>
-                    </a>
-                </h3>
-                <p class="news-description"><%= news.getDescription() %></p>
-                <div class="news-meta">
-                    <span class="category badge bg-primary">分类：<%= news.getCategory() %></span>
-                    <span class="author badge bg-secondary">作者：<%= news.getAuthor() %></span>
-                    <span class="source badge bg-info">来源：<%= news.getSource() %></span>
-                    <span class="time badge bg-dark">时间：<%= news.getPublishTime() %></span>
-                    <span class="views badge bg-success">阅读：<%= news.getViews() %></span>
-                    <span class="likes badge bg-danger">点赞：<%= news.getLikes() %></span>
-                    <% if (news.getTags() != null && !news.getTags().isEmpty()) { %>
-                        <div class="tags mt-2">
-                            <% for (String tag : news.getTags().split(",")) { %>
+                int newsCount = 0;
+                for (News news : pageNews) {
+            %>
+            <div class="news-item">
+                <div class="row">
+                    <div class="col-md-3">
+                        <img src="<%= news.getImage() %>" class="news-image img-fluid" alt="新闻图片"
+                             onerror="this.src='../images/default.jpg'">
+                    </div>
+                    <div class="col-md-9">
+                        <h3>
+                            <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>"
+                               class="text-decoration-none text-dark"
+                               onclick="catchAction(1,'${param.category}')"
+                            > <!--  -->
+                                <%= news.getTitle() %>
+                            </a>
+                        </h3>
+                        <p class="news-description"><%= news.getDescription() %>
+                        </p>
+                        <div class="news-meta">
+                            <span class="category badge bg-primary">分类：<%= news.getCategory() %></span>
+                            <span class="author badge bg-secondary">作者：<%= news.getAuthor() %></span>
+                            <span class="source badge bg-info">来源：<%= news.getSource() %></span>
+                            <span class="time badge bg-dark">时间：<%= news.getPublishTime() %></span>
+                            <span class="views badge bg-success">阅读：<%= news.getViews() %></span>
+                            <span class="likes badge bg-danger">点赞：<%= news.getLikes() %></span>
+                            <% if (news.getTags() != null && !news.getTags().isEmpty()) { %>
+                            <div class="tags mt-2">
+                                <% for (String tag : news.getTags().split(",")) { %>
                                 <span class="badge bg-light text-dark"><%= tag %></span>
+                                <% } %>
+                            </div>
                             <% } %>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <%
+                newsCount++;
+                if (newsCount % 3 == 0) { // 每3条新闻显示一次广告
+            %>
+            <jsp:include page="_ad.jsp">
+                <jsp:param name="position" value="content"/>
+                <jsp:param name="size" value="medium"/>
+            </jsp:include>
+            <% } %>
+            <%
+                }
+            %>
+
+            <!-- 底部广告 -->
+            <div class="ad-container footer-ad">
+                <span class="ad-tag">广告</span>
+                <jsp:include page="_ad.jsp">
+                    <jsp:param name="position" value="footer"/>
+                </jsp:include>
+            </div>
+
+            <!-- 分页导航 -->
+            <div class="mt-4 mb-4">
+                <jsp:include page="_ad.jsp">
+                    <jsp:param name="position" value="pagination_top"/>
+                </jsp:include>
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item <%= currentPage == 1 ? "disabled" : "" %>">
+                        <a class="page-link" href="?category=${param.category}&page=<%= currentPage-1 %>">上一页</a>
+                    </li>
+
+                    <% for (int i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= currentPage == i ? "active" : "" %>">
+                        <a class="page-link" href="?category=${param.category}&page=<%= i %>"><%= i %>
+                        </a>
+                    </li>
                     <% } %>
+
+                    <li class="page-item <%= currentPage == totalPages ? "disabled" : "" %>">
+                        <a class="page-link" href="?category=${param.category}&page=<%= currentPage+1 %>">下一页</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- 右侧广告栏 -->
+        <div class="col-md-3">
+            <div class="sidebar-ad">
+                <div class="ad-container">
+                    <span class="ad-tag">广告</span>
+                    <jsp:include page="_ad.jsp">
+                        <jsp:param name="position" value="sidebar"/>
+                    </jsp:include>
                 </div>
             </div>
         </div>
     </div>
-    <%
-        }
-    %>
-
-    <!-- 中间广告 -->
-    <div class="ad-container">
-        <span class="ad-tag">广告</span>
-        <jsp:include page="_ad.jsp">
-            <jsp:param name="position" value="between"/>
-        </jsp:include>
-    </div>
-
-    <!-- 分页导航 -->
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            <li class="page-item <%= currentPage == 1 ? "disabled" : "" %>">
-                <a class="page-link" href="?category=${param.category}&page=<%= currentPage-1 %>">上一页</a>
-            </li>
-
-            <% for(int i = 1; i <= totalPages; i++) { %>
-                <li class="page-item <%= currentPage == i ? "active" : "" %>">
-                    <a class="page-link" href="?category=${param.category}&page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
-
-            <li class="page-item <%= currentPage == totalPages ? "disabled" : "" %>">
-                <a class="page-link" href="?category=${param.category}&page=<%= currentPage+1 %>">下一页</a>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- 侧边栏广告 -->
-    <div class="col-md-3">
-        <c:if test="${not empty sidebarAd}">
-            <div class="ad-container sidebar-ad">
-                <c:choose>
-                    <c:when test="${sidebarAd.type eq 'FLOATING'}">
-                        <div class="floating-ad" id="floatingAd">
-                            <span class="close-btn" onclick="closeFloatingAd()">&times;</span>
-                            <img src="${sidebarAd.imageUrl}" alt="${sidebarAd.content}">
-                        </div>
-                    </c:when>
-                </c:choose>
-            </div>
-        </c:if>
-    </div>
-
-    <!-- 页脚广告 -->
-    <c:if test="${not empty footerAd}">
-        <div class="ad-container footer-ad">
-            <c:choose>
-                <c:when test="${footerAd.type eq 'SCROLL_TEXT'}">
-                    <div class="scroll-text">
-                        <marquee>${footerAd.content}</marquee>
-                    </div>
-                </c:when>
-            </c:choose>
-        </div>
-    </c:if>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function closeFloatingAd() {
-        document.getElementById('floatingAd').style.display = 'none';
-    }
+    function catchAction(userId, tagName) {
 
-    // 随机移动浮动广告位置
-    function randomFloatingPosition() {
-        const floatingAd = document.getElementById('floatingAd');
-        if (floatingAd) {
-            const maxX = window.innerWidth - floatingAd.offsetWidth;
-            const maxY = window.innerHeight - floatingAd.offsetHeight;
-            const randomX = Math.floor(Math.random() * maxX);
-            const randomY = Math.floor(Math.random() * maxY);
-            floatingAd.style.left = randomX + 'px';
-            floatingAd.style.top = randomY + 'px';
-        }
-    }
-
-    // 每5秒随机改变浮动广告位置
-    setInterval(randomFloatingPosition, 5000);
-</script>
-<script>
-    function catchAction(userId,tagName){
-        let adServer="localhost";
-        let backend_url="http://"+adServer+":8080/receive/news";
-        let backend_url_full=backend_url+"?userId="+userId+"&tagName="+tagName
-        fetch(backend_url_full,{
-            method: 'POST'
-        }
+        let adServer = "112.124.63.147";
+        let backend_url = "http://" + adServer + ":8080/receive/news";
+        let backend_url_full = backend_url + "?userId=" + userId + "&tagName=" + tagName
+        alert(backend_url_full)
+        fetch(backend_url_full, {
+                method: 'POST'
+            }
         ).then(response => {
 
             console.log(response)
+            alert(success)
         })
-            .catch(error => console.log(error));
+            .catch(error => alert(error));
 
     }
 </script>

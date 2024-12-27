@@ -28,4 +28,13 @@
         <listener-class>com.example.news_site.util.NewsSchedulerTask</listener-class>
     </listener>
 
+    <context-param>
+        <param-name>reloadable</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
 </web-app>

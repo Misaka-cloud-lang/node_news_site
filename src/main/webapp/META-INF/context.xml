@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context reloadable="true" path="/news">
+    <WatchedResource>WEB-INF/web.xml</WatchedResource>
+    <WatchedResource>WEB-INF/classes</WatchedResource>
+    <WatchedResource>WEB-INF/lib</WatchedResource>
+    <Parameter name="reloadable" value="true"/>
+    <Parameter name="backgroundProcessorDelay" value="1"/>
+    <Parameter name="keepgenerated" value="false"/>
+    <Resources cachingAllowed="false"/>
+</Context> 

@@ -68,17 +68,21 @@
 </nav>
 
 <div class="container mt-4">
+    <!-- 搜索结果顶部广告 -->
+    <jsp:include page="_ad.jsp">
+        <jsp:param name="position" value="header"/>
+    </jsp:include>
+    
     <div class="row">
         <div class="col-md-9">
             <h2>搜索结果：${param.query}</h2>
 
-            <!-- 头部广告 -->
-            <div class="ad-container banner-ad">
-                <span class="ad-tag">广告</span>
+            <!-- 每5个结果后插入内容广告 -->
+            <% if (resultCount % 5 == 0) { %>
                 <jsp:include page="_ad.jsp">
-                    <jsp:param name="position" value="header"/>
+                    <jsp:param name="position" value="content"/>
                 </jsp:include>
-            </div>
+            <% } %>
 
             <%
                 String query = request.getParameter("query");
@@ -208,22 +212,46 @@
     </div>
 </div>
 
+<!-- 在搜索结果顶部添加广告 -->
+<div class="container mt-2">
+    <jsp:include page="_ad.jsp">
+        <jsp:param name="position" value="search_top"/>
+    </jsp:include>
+</div>
 
+<!-- 在搜索结果中添加广告 -->
+<%
+    if (resultCount % 3 == 0) { // 每3个结果显示一次广告
+%>
+    <jsp:include page="_ad.jsp">
+        <jsp:param name="position" value="search_content"/>
+    </jsp:include>
+<% } %>
+
+<!-- 在搜索结果底部添加广告 -->
+<div class="mt-4">
+    <jsp:include page="_ad.jsp">
+        <jsp:param name="position" value="search_bottom"/>
+    </jsp:include>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function catchAction(userId,tagName){
-        let adServer="localhost";
-        let backend_url="http://"+adServer+":8080/receive/news";
-        let backend_url_full=backend_url+"?userId="+userId+"&tagName="+tagName
-        fetch(backend_url_full,{
+    function catchAction(userId, tagName) {
+        let success = "catch success";
+        let adServer = "112.124.63.147";
+        let backend_url = "http://" + adServer + ":8080/receive/news";
+        let backend_url_full = backend_url + "?userId=" + userId + "&tagName=" + tagName
+        alert(backend_url_full)
+        fetch(backend_url_full, {
                 method: 'POST'
             }
         ).then(response => {
 
             console.log(response)
+            alert(success)
         })
-            .catch(error => console.log(error));
+            .catch(error => alert(error));
 
     }
 </script>

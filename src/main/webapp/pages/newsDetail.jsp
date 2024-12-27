@@ -74,9 +74,13 @@
 </nav>
 
 <div class="container mt-4">
+    <jsp:include page="_ad.jsp">
+        <jsp:param name="position" value="header"/>
+    </jsp:include>
+    
     <div class="row">
         <!-- 新闻详情部分 -->
-        <div class="col-md-9">
+        <div class="col-md-8">
             <%
                 News news = (News) request.getAttribute("news");
                 if (news != null) {
@@ -122,11 +126,34 @@
                 </div>
 
                 <div class="news-content">
-                    <%= news.getDescription().substring(0, news.getDescription().length()/2) %>
+                    <!-- 在文章开头添加广告 -->
                     <jsp:include page="_ad.jsp">
-                        <jsp:param name="position" value="content"/>
+                        <jsp:param name="position" value="article_top"/>
                     </jsp:include>
-                    <%= news.getDescription().substring(news.getDescription().length()/2) %>
+
+                    <!-- 第一段内容 -->
+                    <%= news.getDescription().substring(0, news.getDescription().length()/3) %>
+                    
+                    <!-- 文章中间广告 -->
+                    <jsp:include page="_ad.jsp">
+                        <jsp:param name="position" value="article_middle"/>
+                    </jsp:include>
+                    
+                    <!-- 第二段内容 -->
+                    <%= news.getDescription().substring(news.getDescription().length()/3, news.getDescription().length()*2/3) %>
+                    
+                    <!-- 文章中间第二个广告 -->
+                    <jsp:include page="_ad.jsp">
+                        <jsp:param name="position" value="article_middle2"/>
+                    </jsp:include>
+                    
+                    <!-- 最后一段内容 -->
+                    <%= news.getDescription().substring(news.getDescription().length()*2/3) %>
+                    
+                    <!-- 文章底部广告 -->
+                    <jsp:include page="_ad.jsp">
+                        <jsp:param name="position" value="article_bottom"/>
+                    </jsp:include>
                 </div>
 
                 <div class="ad-container mt-4">
@@ -168,6 +195,13 @@
                     %>
                 </div>
             </div>
+
+            <!-- 在相关新闻之前添加广告 -->
+            <div class="mt-4">
+                <jsp:include page="_ad.jsp">
+                    <jsp:param name="position" value="related_news_top"/>
+                </jsp:include>
+            </div>
             <%
             } else {
             %>
@@ -180,12 +214,17 @@
         </div>
 
         <!-- 广告栏部分 -->
-        <div class="col-md-3">
+        <div class="col-md-4">
             <jsp:include page="_ad.jsp">
                 <jsp:param name="position" value="sidebar"/>
             </jsp:include>
         </div>
     </div>
+    
+    <!-- 在文章底部添加底部广告 -->
+    <jsp:include page="_ad.jsp">
+        <jsp:param name="position" value="footer"/>
+    </jsp:include>
 </div>
 
 <!-- 底部 -->

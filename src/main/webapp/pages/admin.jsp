@@ -38,126 +38,137 @@
     </div>
 </nav>
 
-<div class="container mt-4">
-    <!-- 功能选项卡 -->
-    <ul class="nav nav-tabs" id="adminTabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="news-tab" data-bs-toggle="tab" href="#news" role="tab">新闻管理</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="crawler-tab" data-bs-toggle="tab" href="#crawler" role="tab">爬虫管理</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab">系统设置</a>
-        </li>
-    </ul>
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
+            <!-- 功能选项卡 -->
+            <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="news-tab" data-bs-toggle="tab" href="#news" role="tab">新闻管理</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="crawler-tab" data-bs-toggle="tab" href="#crawler" role="tab">爬虫管理</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab">系统设置</a>
+                </li>
+            </ul>
 
-    <!-- 选项卡内容 -->
-    <div class="tab-content" id="adminTabContent">
-        <!-- 新闻管理 -->
-        <div class="tab-pane fade show active" id="news" role="tabpanel">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">新闻列表</h5>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewsModal">
-                        添加新闻
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>标题</th>
-                                    <th>分类</th>
-                                    <th>作者</th>
-                                    <th>发布时间</th>
-                                    <th>状态</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <%
-                                    NewsService newsService = new NewsService();
-                                    List<News> newsList = newsService.getAllNews();
-                                    for (News news : newsList) {
-                                %>
-                                <tr>
-                                    <td><%= news.getId() %></td>
-                                    <td><%= news.getTitle() %></td>
-                                    <td><%= news.getCategory() %></td>
-                                    <td><%= news.getAuthor() %></td>
-                                    <td><%= news.getPublishTime() %></td>
-                                    <td><span class="badge bg-success"><%= news.getStatus() %></span></td>
-                                    <td class="action-buttons">
-                                        <button class="btn btn-sm btn-primary" onclick="editNews(<%= news.getId() %>)">编辑</button>
-                                        <button class="btn btn-sm btn-danger" onclick="deleteNews(<%= news.getId() %>)">删除</button>
-                                        <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>" 
-                                           class="btn btn-sm btn-info" target="_blank">查看</a>
-                                    </td>
-                                </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 爬虫管理 -->
-        <div class="tab-pane fade" id="crawler" role="tabpanel">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">爬虫控制</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6 class="card-title">手动爬取</h6>
-                                    <p>立即开始爬取新闻</p>
-                                    <button class="btn btn-primary" onclick="startCrawler()">开始爬取</button>
-                                </div>
-                            </div>
+            <!-- 选项卡内容 -->
+            <div class="tab-content" id="adminTabContent">
+                <!-- 新闻管理 -->
+                <div class="tab-pane fade show active" id="news" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">新闻列表</h5>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addNewsModal">
+                                添加新闻
+                            </button>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h6 class="card-title">定时任务状态</h6>
-                                    <p>爬虫执行时间：每天凌晨2:00</p>
-                                    <p>上次执行时间：${lastCrawlTime}</p>
-                                    <p>下次执行时间：${nextCrawlTime}</p>
-                                    <button class="btn btn-primary" onclick="startCrawler()">立即执行</button>
-                                </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>标题</th>
+                                            <th>分类</th>
+                                            <th>作者</th>
+                                            <th>发布时间</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <%
+                                            NewsService newsService = new NewsService();
+                                            List<News> newsList = newsService.getAllNews();
+                                            for (News news : newsList) {
+                                        %>
+                                        <tr>
+                                            <td><%= news.getId() %></td>
+                                            <td><%= news.getTitle() %></td>
+                                            <td><%= news.getCategory() %></td>
+                                            <td><%= news.getAuthor() %></td>
+                                            <td><%= news.getPublishTime() %></td>
+                                            <td><span class="badge bg-success"><%= news.getStatus() %></span></td>
+                                            <td class="action-buttons">
+                                                <button class="btn btn-sm btn-primary" onclick="editNews(<%= news.getId() %>)">编辑</button>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteNews(<%= news.getId() %>)">删除</button>
+                                                <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>" 
+                                                   class="btn btn-sm btn-info" target="_blank">查看</a>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- 爬虫管理 -->
+                <div class="tab-pane fade" id="crawler" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">爬虫控制</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">手动爬取</h6>
+                                            <p>立即开始爬取新闻</p>
+                                            <button class="btn btn-primary" onclick="startCrawler()">开始爬取</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">定时任务状态</h6>
+                                            <p>爬虫执行时间：每天凌晨2:00</p>
+                                            <p>上次执行时间：${lastCrawlTime}</p>
+                                            <p>下次执行时间：${nextCrawlTime}</p>
+                                            <button class="btn btn-primary" onclick="startCrawler()">立即执行</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统设置 -->
+                <div class="tab-pane fade" id="settings" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">系统设置</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="settingsForm">
+                                <div class="mb-3">
+                                    <label class="form-label">爬虫执行时间</label>
+                                    <input type="time" class="form-control" name="crawlerTime" value="02:00">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">每个分类爬取数量</label>
+                                    <input type="number" class="form-control" name="crawlerCount" value="10">
+                                </div>
+                                <button type="submit" class="btn btn-primary">保存设置</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <!-- 系统设置 -->
-        <div class="tab-pane fade" id="settings" role="tabpanel">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">系统设置</h5>
-                </div>
-                <div class="card-body">
-                    <form id="settingsForm">
-                        <div class="mb-3">
-                            <label class="form-label">爬虫执行时间</label>
-                            <input type="time" class="form-control" name="crawlerTime" value="02:00">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">每个分类爬取数量</label>
-                            <input type="number" class="form-control" name="crawlerCount" value="10">
-                        </div>
-                        <button type="submit" class="btn btn-primary">保存设置</button>
-                    </form>
-                </div>
-            </div>
+        
+        <!-- 侧边栏广告 -->
+        <div class="col-md-3">
+            <jsp:include page="_ad.jsp">
+                <jsp:param name="position" value="sidebar"/>
+            </jsp:include>
         </div>
     </div>
 </div>
