@@ -119,8 +119,8 @@
                 <h3>
                     <a href="${pageContext.request.contextPath}/news?id=<%= news.getId() %>"
                        class="text-decoration-none text-dark"
-                       onclick="catchAction(1,'${param.category}')"
-                    >
+               
+                    > <!-- onclick="catchAction(1,'${param.category}')" -->
                         <%= news.getTitle() %>
                     </a>
                 </h3>

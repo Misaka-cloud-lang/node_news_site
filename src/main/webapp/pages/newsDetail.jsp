@@ -91,6 +91,9 @@
 
             <article>
                 <h1 class="mb-4"><%= news.getTitle() %></h1>
+                <jsp:include page="_ad.jsp">
+                    <jsp:param name="position" value="header"/>
+                </jsp:include>
 
                 <div class="news-meta">
                     <span class="category badge bg-primary">分类：<%= news.getCategory() %></span>
@@ -119,7 +122,11 @@
                 </div>
 
                 <div class="news-content">
-                    <%= news.getDescription() %>
+                    <%= news.getDescription().substring(0, news.getDescription().length()/2) %>
+                    <jsp:include page="_ad.jsp">
+                        <jsp:param name="position" value="content"/>
+                    </jsp:include>
+                    <%= news.getDescription().substring(news.getDescription().length()/2) %>
                 </div>
 
                 <div class="ad-container mt-4">
@@ -174,17 +181,9 @@
 
         <!-- 广告栏部分 -->
         <div class="col-md-3">
-            <div class="ad-space mb-4">
-                <h5 class="text-center mb-3">广告位 1</h5>
-                <img src="../images/ad1.jpg" alt="广告图片" class="img-fluid mb-2">
-                <p class="text-center mb-0">广告内容</p>
-            </div>
-
-            <div class="ad-space">
-                <h5 class="text-center mb-3">广告位 2</h5>
-                <img src="../images/ad2.jpg" alt="广告图片" class="img-fluid mb-2">
-                <p class="text-center mb-0">另一种广告形式</p>
-            </div>
+            <jsp:include page="_ad.jsp">
+                <jsp:param name="position" value="sidebar"/>
+            </jsp:include>
         </div>
     </div>
 </div>
