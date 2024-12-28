@@ -371,6 +371,15 @@
         .badge.bg-success {
             background: #28a745 !important;
         }
+
+        /* 确保底部广告固定在页面底部 */
+        .ad-container:last-child {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -436,9 +445,24 @@
 
             <% if (currentPageResults != null && !currentPageResults.isEmpty()) { %>
                 <!-- 搜索结果列表 -->
-                <div class="row">
-                    <% for (News news : currentPageResults) { %>
-                        <div class="col-12 mb-4">
+                <div class="search-results">
+                    <% 
+                    // 先显示第一条广告
+                    %>
+                    <div class="ad-container mb-4">
+                        <jsp:include page="_ad.jsp">
+                            <jsp:param name="position" value="search_feed_top"/>
+                            <jsp:param name="template" value="inFeed"/>
+                        </jsp:include>
+                    </div>
+
+                    <% 
+                    int resultCount = 0;
+                    for (News news : currentPageResults) { 
+                        resultCount++;
+                    %>
+                        <!-- 搜索结果项 -->
+                        <div class="search-item mb-4">
                             <div class="card news-card">
                                 <div class="row g-0">
                                     <div class="col-md-3">
@@ -509,7 +533,24 @@
                                 </div>
                             </div>
                         </div>
+
+                        <% if (resultCount % 3 == 0 && resultCount < currentPageResults.size()) { %>
+                            <div class="ad-container mb-4">
+                                <jsp:include page="_ad.jsp">
+                                    <jsp:param name="position" value="search_feed_<%= (resultCount/3) + 1 %>"/>
+                                    <jsp:param name="template" value="inFeed"/>
+                                </jsp:include>
+                            </div>
+                        <% } %>
                     <% } %>
+                </div>
+
+                <!-- 底部固定悬浮广告 -->
+                <div class="ad-container">
+                    <jsp:include page="_ad.jsp">
+                        <jsp:param name="position" value="search_bottom_float"/>
+                        <jsp:param name="template" value="bottomBanner"/>
+                    </jsp:include>
                 </div>
 
                 <!-- 分页导航 -->
@@ -541,13 +582,6 @@
         <% } %>
     </div>
 
-    <!-- 底部广告位 -->
-    <div class="container mt-4">
-        <jsp:include page="_ad.jsp">
-            <jsp:param name="position" value="search_bottom"/>
-        </jsp:include>
-    </div>
-
     <jsp:include page="common/footer.jsp" />
 
     <!-- 返回顶部按钮 -->
@@ -556,6 +590,7 @@
     </button>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="${pageContext.request.contextPath}/js/userTracker.js"></script>
     <script>
     // 返回顶部按钮功能
     document.addEventListener('DOMContentLoaded', function() {
@@ -600,6 +635,12 @@
     }
 
     document.addEventListener('DOMContentLoaded', addLoadingEffect);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 发送搜索关键词作为标签
+        const searchQuery = '<%= request.getParameter("query") %>';
+        UserTracker.sendUserData('search', searchQuery);
+    });
     </script>
 </body>
 </html>

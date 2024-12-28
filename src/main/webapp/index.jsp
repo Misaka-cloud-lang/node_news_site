@@ -582,7 +582,16 @@
     </div>
 </section>
 
-<!-- ���闻分类 -->
+
+<!-- 第一个广告位 - 轮播图下方 -->
+<div class="ad-container mb-4">
+    <jsp:include page="pages/_ad.jsp">
+        <jsp:param name="position" value="index_carousel_bottom"/>
+        <jsp:param name="template" value="inFeed"/>
+    </jsp:include>
+</div>
+
+<!-- 新闻分类 -->
 <section class="container my-5">
     <h2 class="text-center mb-5">新闻分类</h2>
     <div class="row justify-content-center">
@@ -829,10 +838,27 @@
     <i class="bi bi-arrow-up"></i>
 </button>
 
-<!-- 使用统一的页脚 -->
+<!-- 第二个广告位 - 分类卡片后，页脚前 -->
+<div class="ad-container mb-4">
+    <jsp:include page="pages/_ad.jsp">
+        <jsp:param name="position" value="index_bottom"/>
+        <jsp:param name="template" value="inFeed"/>
+    </jsp:include>
+</div>
+
+<!-- 第三个广告位 - 固定在页面底部 -->
+<div class="ad-container">
+    <jsp:include page="pages/_ad.jsp">
+        <jsp:param name="position" value="index_float_bottom"/>
+        <jsp:param name="template" value="bottomBanner"/>
+    </jsp:include>
+</div>
+
+<!-- 页脚 -->
 <jsp:include page="pages/common/footer.jsp" />
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/userTracker.js"></script>
 <script>
     // 添加滚动动画
     document.addEventListener('DOMContentLoaded', function() {
@@ -918,6 +944,16 @@
     }
 
     getWeather();
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 首页默认分类为 "home"，标签包含热门分类
+        const popularCategories = [
+            "国内", "国际", "财经", "科技", "军事", 
+            "体育", "娱乐", "社会"
+        ].join(',');
+        
+        UserTracker.sendUserData('home', popularCategories);
+    });
 </script>
 </body>
 </html>

@@ -1,307 +1,344 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-    // 获取广告位置参数
     String position = request.getParameter("position");
-    String size = request.getParameter("size") != null ? request.getParameter("size") : "medium";
+    String template = request.getParameter("template");
+    if (template == null) {
+        template = "inFeed";  // 设置默认值
+    }
+    String adServer = "112.124.63.147:8080";
+    String adUrl = String.format("http://%s/api/ad/news?userId=3", adServer);
+
+    // 广告模板配置
+    String width = "100%";
+    String height = "90px";
+    String className = "";
+
+    // 添加null检查
+    switch(template) {
+        case "topBanner":
+            height = "120px";
+            className = "top-banner-ad";
+            break;
+        case "sidebar":
+            width = "300px";
+            height = "600px";
+            className = "sidebar-ad";
+            break;
+        case "inFeed":
+            height = "200px";
+            className = "in-feed-ad";
+            break;
+        case "bottomBanner":
+            height = "100px";
+            className = "bottom-banner-ad";
+            break;
+        default:
+            height = "90px";
+            className = "default-ad";
+            break;
+    }
 %>
 
-<!-- 广告样式 -->
-<style>
-    .ad-wrapper {
-        width: 100%;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .ad-wrapper.header-position {
-        min-height: 120px;
-    }
-
-    .ad-wrapper.sidebar-position {
-        min-height: 600px;
-    }
-
-    .ad-wrapper.content-position {
-        min-height: 100px;
-    }
-
-    .ad-wrapper.footer-position {
-        min-height: 100px;
-    }
-
-    .ad-content {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 15px;
-        text-align: center;
-        border: 1px solid #e9ecef;
-    }
-
-    .ad-loading {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-        background-size: 200% 100%;
-        animation: loading 1.5s infinite;
-    }
-
-    .ad-error {
-        padding: 20px;
-        color: #856404;
-        background-color: #fff3cd;
-        border: 1px solid #ffeeba;
-        border-radius: 8px;
-        text-align: center;
-        display: none;
-    }
-
-    .ad-close {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        cursor: pointer;
-        background: rgba(0, 0, 0, 0.5);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 20px;
-        height: 20px;
-        font-size: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1;
-    }
-
-    /* 响应式布局 */
-    @media (max-width: 768px) {
-        .ad-wrapper.header-position,
-        .ad-wrapper.footer-position {
-            min-height: 80px;
-        }
-
-        .ad-wrapper.sidebar-position {
-            min-height: 300px;
-        }
-
-        .ad-content {
-            padding: 10px;
-        }
-    }
-
-    @keyframes loading {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
-    }
-
-    /* 添加占位符样式 */
-    .ad-placeholder {
-        width: 100%;
-        height: 100%;
-        background-color: #f8f9fa;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px dashed #dee2e6;
-    }
+<div class="ad-wrapper <%= className %>" id="ad-<%= position %>">
+    <button class="ad-close" onclick="closeAd(this)" title="关闭广告">
+        <i class="bi bi-x"></i>
+    </button>
     
-    .ad-placeholder-text {
-        color: #6c757d;
-        font-size: 14px;
-    }
-</style>
-
-<!-- 广告容器 -->
-<div class="ad-wrapper <%= position %>-position" id="ad-<%= position %>">
-    <button class="ad-close" onclick="closeAd(this)" title="关闭广告">×</button>
-    <div class="ad-loading" id="loading-<%= position %>"></div>
-    <div class="ad-error" id="error-<%= position %>">
-        广告加载失败，请稍后再试
+    <div class="ad-label">
+        <i class="bi bi-badge-ad"></i>
+        <span>广告</span>
     </div>
-    <div class="ad-content" id="content-<%= position %>">
-        <%
-            String adServer = "112.124.63.147:8080";
-            String userId = "3"; // 这里可以从 session 或参数中获取
-            
-            // 根据位置设置不同的广告尺寸
-            String width = "100%";
-            String height = "90px";
-            
-            if ("header".equals(position)) {
-                height = "90px";
-            } else if ("sidebar".equals(position)) {
-                width = "300px";
-                height = "600px";
-            } else if ("content".equals(position)) {
-                height = "250px";
-            } else if ("footer".equals(position)) {
-                height = "90px";
-            } else if ("nav_bottom".equals(position)) {
-                width = "100%";
-                height = "60px";
-            } else if ("article_top".equals(position) || "article_bottom".equals(position)) {
-                width = "100%";
-                height = "120px";
-            } else if ("article_middle".equals(position) || "article_middle2".equals(position)) {
-                width = "300px";
-                height = "250px";
-            } else if ("related_news_top".equals(position)) {
-                width = "100%";
-                height = "90px";
-            } else if ("search_top".equals(position) || "search_bottom".equals(position)) {
-                width = "100%";
-                height = "90px";
-            } else if ("pagination_top".equals(position)) {
-                width = "100%";
-                height = "90px";
-            }
-        %>
+    
+    <div class="ad-content">
         <iframe 
-            src="http://<%= adServer %>/news?userId=<%= userId %>&position=<%= position %>"
+            src="<%= adUrl %>"
             width="<%= width %>" 
             height="<%= height %>"
             frameborder="0"
             scrolling="no"
-            id="ad-frame-<%= position %>"
-            style="display: none" <!-- 初始隐藏iframe -->
-
-            onload="handleAdLoad(this)"
+            onload="checkAdContent(this)"
             onerror="handleAdError(this)">
         </iframe>
-        <!-- 添加广告位占位符 -->
-        <div class="ad-placeholder" id="placeholder-<%= position %>">
-            <div class="ad-placeholder-text">广告位</div>
+    </div>
+    
+    <div class="ad-placeholder" style="display: none;">
+        <div class="placeholder-content">
+            <i class="bi bi-building"></i>
+            <h5>广告位招租</h5>
+            <p>联系电话：021-12345678</p>
+            <button class="btn btn-sm btn-outline-primary" onclick="contactUs()">
+                立即咨询
+            </button>
+            <div class="error-message text-danger small mt-2"></div>
         </div>
     </div>
 </div>
 
-<!-- 广告处理脚本 -->
-<script>
-    // 广告加载完成后移除加载动画
-    window.addEventListener('load', function() {
-        const position = '<%= position %>';
-        const loading = document.getElementById('loading-' + position);
-        const content = document.getElementById('content-' + position);
-        const error = document.getElementById('error-' + position);
-
-        try {
-            // 模拟广告加载
-            setTimeout(() => {
-                loading.style.display = 'none';
-                content.style.display = 'block';
-            }, 1000);
-        } catch (e) {
-            loading.style.display = 'none';
-            error.style.display = 'block';
-            console.error('广告加载失败:', e);
-        }
-    });
-
-    // 关闭广告
-    function closeAd(button) {
-        const adWrapper = button.parentElement;
-        adWrapper.style.display = 'none';
-        
-        // 可以在这里添加广告关闭的统计代码
-        console.log('广告已关闭:', adWrapper.id);
+<style>
+    .ad-wrapper {
+        margin: 15px 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        position: relative;
+        min-height: 90px;
     }
 
-    // 处理广告 iframe 加载完成
-    function handleAdLoad(iframe) {
-        const position = iframe.id.replace('ad-frame-', '');
-        const loading = document.getElementById('loading-' + position);
-        const placeholder = document.getElementById('placeholder-' + position);
+    /* 添加广告关闭后的样式 */
+    .ad-wrapper.ad-closed {
+        margin: 0 !important;
+        min-height: 0 !important;
+        height: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        overflow: hidden;
+    }
+
+    /* 侧边栏广告特殊处理 */
+    .sidebar-ad.ad-closed {
+        position: static !important;
+        margin: 0 !important;
+    }
+
+    /* 底部通栏广告特殊处理 */
+    .bottom-banner-ad.ad-closed {
+        display: none !important;
+    }
+
+    .ad-label {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0,0,0,0.4);
+        color: rgba(255,255,255,0.9);
+        padding: 3px 8px;
+        font-size: 12px;
+        border-radius: 4px;
+        z-index: 1;
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: opacity 0.3s ease;
+    }
+
+    /* 鼠标悬停时降低标签透明度 */
+    .ad-wrapper:hover .ad-label {
+        opacity: 0.7;
+    }
+
+    /* 广告占位样式 */
+    .ad-placeholder {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .placeholder-content {
+        color: #6c757d;
+    }
+
+    .placeholder-content i {
+        font-size: 32px;
+        margin-bottom: 10px;
+        color: #adb5bd;
+    }
+
+    .placeholder-content h5 {
+        margin-bottom: 8px;
+        color: #495057;
+    }
+
+    .placeholder-content p {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    /* 顶部通栏广告 */
+    .top-banner-ad {
+        width: 100%;
+        margin: 0 0 20px 0;
+        background: #fff;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* 侧边栏广告 */
+    .sidebar-ad {
+        position: sticky;
+        top: 80px;
+        margin: 0 0 20px 0;
+        border: 1px solid rgba(0,0,0,0.1);
+        background: white;
+    }
+
+    /* 信息流广告 */
+    .in-feed-ad {
+        margin: 20px auto;
+        max-width: 100%;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* 右侧悬浮广告 */
+    .float-right-ad {
+        position: fixed;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 999;
+    }
+
+    /* 左侧悬浮广告 */
+    .float-left-ad {
+        position: fixed;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 999;
+    }
+
+    /* 底部通栏广告 */
+    .bottom-banner-ad {
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+        background: white;
+        border-top: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .float-left-ad, .float-right-ad {
+            display: none; /* 移动端隐藏悬浮广告 */
+        }
         
-        try {
-            // 检查iframe内容是否加载成功
-            const iframeContent = iframe.contentWindow.document.body;
-            if (iframeContent) {
-                loading.style.display = 'none';
-                placeholder.style.display = 'none';
-                iframe.style.display = 'block';
-                logAdImpression(position);
-            } else {
+        .sidebar-ad {
+            position: static;
+            width: 100%;
+            height: 250px;
+            margin: 15px 0;
+        }
+
+        .bottom-banner-ad {
+            height: 60px;
+        }
+    }
+
+    /* 添加关闭按钮样式 */
+    .ad-close {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: rgba(0,0,0,0.4);
+        color: white;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+
+    .ad-close:hover {
+        background: rgba(0,0,0,0.6);
+        transform: scale(1.1);
+    }
+</style>
+
+<script>
+function checkAdContent(iframe) {
+    try {
+        // 添加超时检查
+        setTimeout(() => {
+            try {
+                const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
+                if (!iframeContent || !iframeContent.body.innerHTML.trim()) {
+                    console.log('[Ad] 广告加载超时或内容为空');
+                    handleAdError(iframe);
+                }
+            } catch (e) {
+                console.log('[Ad] 广告加载失败:', e);
                 handleAdError(iframe);
             }
-        } catch(e) {
+        }, 3000); // 3秒超时
+        
+        // 原有的检查
+        const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
+        if (!iframeContent || !iframeContent.body.innerHTML.trim()) {
             handleAdError(iframe);
         }
+    } catch (e) {
+        console.log('[Ad] 广告加载出错:', e);
+        handleAdError(iframe);
     }
-    
-    // 处理广告加载失败
-    function handleAdError(iframe) {
-        const position = iframe.id.replace('ad-frame-', '');
-        const loading = document.getElementById('loading-' + position);
-        const placeholder = document.getElementById('placeholder-' + position);
-        
-        loading.style.display = 'none';
+}
+
+function handleAdError(iframe, errorMessage) {
+    const wrapper = iframe.closest('.ad-wrapper');
+    if (wrapper) {
+        // 隐藏iframe
         iframe.style.display = 'none';
-        placeholder.style.display = 'block';
         
-        // 只在控制台输出错误，不影响用户体验
-        console.warn('广告加载失败:', position);
-    }
-    
-    // 自适应 iframe 高度
-    function adjustIframeHeight(iframe) {
-        iframe.onload = function() {
-            try {
-                const height = iframe.contentWindow.document.body.scrollHeight;
-                iframe.style.height = height + 'px';
-            } catch(e) {
-                console.warn('无法访问iframe内容:', e);
+        // 显示占位内容
+        const placeholder = wrapper.querySelector('.ad-placeholder');
+        if (placeholder) {
+            placeholder.style.display = 'flex';
+            
+            // 在占位内容中显示错误信息
+            const errorDiv = placeholder.querySelector('.error-message');
+            if (errorDiv) {
+                errorDiv.textContent = `加载失败: ${errorMessage}`;
             }
+            
+            // 添加错误信息到控制台
+            console.warn('[Ad] 显示占位广告:', {
+                position: wrapper.id,
+                error: errorMessage,
+                url: iframe.src
+            });
         }
     }
-    
-    // 改进的广告展示统计
-    function logAdImpression(position) {
-        const data = {
-            position: position,
-            timestamp: new Date().toISOString(),
-            url: window.location.href,
-            userAgent: navigator.userAgent
-        };
+}
+
+// 关闭广告
+function closeAd(button) {
+    const wrapper = button.closest('.ad-wrapper');
+    if (wrapper) {
+        // 添加关闭类名
+        wrapper.classList.add('ad-closed');
         
-        // 修改 fetch 请求配置
-        fetch('http://<%= adServer %>/ad/impression', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'  // 添加跨域头
-            },
-            mode: 'cors',  // 添加 cors 模式
-            credentials: 'omit',  // 不发送 cookies
-            body: JSON.stringify(data)
-        }).catch(error => {
-            console.warn('广告统计请求失败:', error);
-            // 失败时静默处理，不影响用户体验
-        });
+        // 淡出动画
+        wrapper.style.opacity = '0';
+        setTimeout(() => {
+            wrapper.style.height = '0';
+            wrapper.style.margin = '0';
+            wrapper.style.padding = '0';
+        }, 300);
     }
-    
-    // 添加广告可见性检测
-    const observerOptions = {
-        root: null,
-        threshold: 0.5 // 当广告可见面积超过50%时触发
-    };
-    
-    const adObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const position = entry.target.id.replace('ad-', '');
-                logAdImpression(position);
-                adObserver.unobserve(entry.target); // 只统计一次
-            }
-        });
-    }, observerOptions);
-    
-    // 观察所有广告容器
-    document.querySelectorAll('.ad-wrapper').forEach(ad => {
-        adObserver.observe(ad);
-    });
+}
+
+// 联系我们
+function contactUs() {
+    alert('请联系我们的广告部门\n电话：021-12345678\n邮箱：ad@example.com');
+}
 </script>
 

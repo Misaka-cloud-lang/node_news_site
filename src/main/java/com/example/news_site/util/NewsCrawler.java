@@ -74,7 +74,7 @@ public class NewsCrawler {
                     JSONArray data = json.getJSONObject("result").getJSONArray("data");
                     
                     for (int i = 0; i < data.length(); i++) {
-                        if (newsCount >= 20) {
+                        if (newsCount >= 10) {
                             break;
                         }
                         

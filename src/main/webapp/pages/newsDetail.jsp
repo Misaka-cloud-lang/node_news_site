@@ -418,12 +418,21 @@
     
     <main class="main-content">
         <div class="container mt-4">
+            <!-- 顶部通栏广告 -->
+            <div class="ad-container">
+                <jsp:include page="_ad.jsp">
+                    <jsp:param name="position" value="detail_page_top"/>
+                    <jsp:param name="template" value="topBanner"/>
+                </jsp:include>
+            </div>
+
             <div class="row">
                 <!-- 主要内容区 -->
                 <div class="col-lg-8">
                     <article class="news-article">
                         <h1 class="news-title"><%= news.getTitle() %></h1>
-                        
+
+
                         <div class="news-meta">
                             <div class="meta-item">
                                 <i class="bi bi-person-circle"></i>
@@ -441,6 +450,14 @@
                                 <i class="bi bi-tag"></i>
                                 <span><%= news.getCategory() %></span>
                             </div>
+                        </div>
+                        
+                        <!-- 文章顶部广告 -->
+                        <div class="ad-container">
+                            <jsp:include page="_ad.jsp">
+                                <jsp:param name="position" value="detail_top"/>
+                                <jsp:param name="template" value="inFeed"/>
+                            </jsp:include>
                         </div>
                         
                         <% if (news.getImage() != null && !news.getImage().isEmpty()) { %>
@@ -469,6 +486,15 @@
                             </div>
                         <% } %>
                         
+                        <!-- 文章内容前广告 -->
+                        <div class="ad-container">
+                            <jsp:include page="_ad.jsp">
+                                <jsp:param name="position" value="detail_content_top"/>
+                                <jsp:param name="template" value="inFeed"/>
+                            </jsp:include>
+                        </div>
+
+                        <!-- 文章内容 -->
                         <div class="news-content">
                             <% if (news.getContent() != null && !news.getContent().isEmpty()) { %>
                                 <%= news.getContent() %>
@@ -476,6 +502,22 @@
                                 <!-- Debug: No content available -->
                                 <p class="text-muted">暂无内容</p>
                             <% } %>
+                        </div>
+                        
+                        <!-- 文章内容后广告 -->
+                        <div class="ad-container">
+                            <jsp:include page="_ad.jsp">
+                                <jsp:param name="position" value="detail_content_bottom"/>
+                                <jsp:param name="template" value="inFeed"/>
+                            </jsp:include>
+                        </div>
+
+                        <!-- 文章底部广告 -->
+                        <div class="ad-container">
+                            <jsp:include page="_ad.jsp">
+                                <jsp:param name="position" value="detail_bottom"/>
+                                <jsp:param name="template" value="inFeed"/>
+                            </jsp:include>
                         </div>
 
                         <!-- 分享按钮 -->
@@ -514,6 +556,7 @@
                 
                 <!-- 侧边栏 -->
                 <div class="col-lg-4">
+
                     <!-- 相关新闻 -->
                     <% if (relatedNews != null && !relatedNews.isEmpty()) { %>
                         <div class="related-news">
@@ -543,6 +586,14 @@
                         </div>
                     <% } %>
 
+                    <!-- 侧边栏中部广告 -->
+                    <div class="ad-container">
+                        <jsp:include page="_ad.jsp">
+                            <jsp:param name="position" value="detail_sidebar_middle"/>
+                            <jsp:param name="template" value="sidebar"/>
+                        </jsp:include>
+                    </div>
+
                     <!-- 在侧边栏添加标签云 -->
                     <div class="tags-cloud mb-4">
                         <h4><i class="bi bi-tags me-2"></i>热门标签</h4>
@@ -555,6 +606,14 @@
                                 <%= tags[i] %>
                             </a>
                         <% } %>
+                    </div>
+
+                    <!-- 侧边栏底部广告 -->
+                    <div class="ad-container">
+                        <jsp:include page="_ad.jsp">
+                            <jsp:param name="position" value="detail_sidebar_bottom"/>
+                            <jsp:param name="template" value="sidebar"/>
+                        </jsp:include>
                     </div>
 
                     <!-- 添加热门推荐 -->
@@ -583,11 +642,20 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 底部通栏广告 -->
+            <div class="ad-container">
+                <jsp:include page="_ad.jsp">
+                    <jsp:param name="position" value="detail_bottom_banner"/>
+                    <jsp:param name="template" value="bottomBanner"/>
+                </jsp:include>
+            </div>
         </div>
     </main>
 
     <jsp:include page="common/footer.jsp" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="${pageContext.request.contextPath}/js/userTracker.js"></script>
     <script>
     function updateCount(element, type) {
         let countElement = element.querySelector('.interaction-count');
@@ -656,6 +724,33 @@
             }
         </style>
     `);
+
+    // 初始化用户行为跟踪
+    document.addEventListener('DOMContentLoaded', function() {
+        // 跟踪页面浏览
+        UserTracker.trackPageView('news_detail');
+        
+        // 跟踪停留时间
+        UserTracker.trackDuration();
+        
+        // 跟踪滚动深度
+        UserTracker.trackScrollDepth();
+        
+        // 跟踪文章互动
+        document.querySelectorAll('.interaction-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                UserTracker.trackInteraction('article', this.getAttribute('data-type'));
+            });
+        });
+    });
+
+    // 发送用户正在查看的新闻分类和标签
+    document.addEventListener('DOMContentLoaded', function() {
+        const category = '<%= news.getCategory() %>';
+        const tags = '<%= news.getTags() %>'; // 假设新闻有tags属性
+        
+        UserTracker.sendUserData(category, tags);
+    });
     </script>
 </body>
 </html>

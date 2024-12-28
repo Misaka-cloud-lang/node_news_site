@@ -32,10 +32,6 @@
         <location>/pages/error.jsp</location>
     </error-page>
 
-    <listener>
-        <listener-class>com.example.news_site.util.NewsSchedulerTask</listener-class>
-    </listener>
-
     <context-param>
         <param-name>reloadable</param-name>
         <param-value>true</param-value>

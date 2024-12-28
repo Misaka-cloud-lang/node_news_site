@@ -106,6 +106,55 @@
             margin-top: 0;
             padding-top: 20px;
         }
+
+        .grid-view .list-item,
+        .grid-view .list-ad {
+            display: none !important;
+        }
+
+        .list-view .grid-item,
+        .list-view .grid-ad {
+            display: none !important;
+        }
+
+        /* 确保广告在不同视图下正确显示 */
+        .ad-item {
+            display: block !important;
+        }
+
+        /* 悬浮广告位置调整 */
+        .float-right-ad {
+            right: 20px;
+        }
+
+        .float-left-ad {
+            left: 20px;
+        }
+
+        /* 视图切换控制 */
+        .grid-view .list-item,
+        .grid-view .list-ad {
+            display: none !important;
+        }
+
+        .list-view .grid-item,
+        .list-view .grid-ad {
+            display: none !important;
+        }
+
+        /* 确保广告容器正确显示 */
+        .ad-item {
+            width: 100%;
+        }
+
+        /* 广告样式调整 */
+        .grid-ad {
+            margin: 20px 0;
+        }
+
+        .list-ad {
+            margin: 15px 0;
+        }
     </style>
 </head>
 <body style="overflow-x: hidden; position: relative;">
@@ -213,12 +262,24 @@
         </div>
     </div>
 
+    <!-- 筛选栏下方，列表前的广告位 -->
+    <div class="ad-container mb-4">
+        <jsp:include page="_ad.jsp">
+            <jsp:param name="position" value="list_top"/>
+            <jsp:param name="template" value="inFeed"/>
+        </jsp:include>
+    </div>
+
     <!-- 新闻列表容器 -->
-    <div class="news-container grid-view">
-        <div class="row">
-            <% if (newsList != null && !newsList.isEmpty()) { %>
+    <div class="news-container">
+        <% if (newsList != null && !newsList.isEmpty()) { %>
+            <div class="row">
                 <!-- 网格视图 -->
-                <% for (News news : newsList) { %>
+                <% 
+                int gridCount = 0;
+                for (News news : newsList) { 
+                    gridCount++;
+                %>
                     <div class="col-md-6 col-lg-4 mb-4 grid-item">
                         <div class="card news-card gradient-border hover-float">
                             <div class="card-img-wrapper shine-effect">
@@ -275,10 +336,25 @@
                             </div>
                         </div>
                     </div>
+
+                    <% if (gridCount % 6 == 0) { %>
+                        <div class="col-12 mb-4 ad-item grid-ad">
+                            <div class="ad-container">
+                                <jsp:include page="_ad.jsp">
+                                    <jsp:param name="position" value="grid_feed_<%= gridCount/6 %>"/>
+                                    <jsp:param name="template" value="inFeed"/>
+                                </jsp:include>
+                            </div>
+                        </div>
+                    <% } %>
                 <% } %>
-                
+
                 <!-- 列表视图 -->
-                <% for (News news : newsList) { %>
+                <% 
+                int listCount = 0;
+                for (News news : newsList) { 
+                    listCount++;
+                %>
                     <div class="col-12 mb-3 list-item">
                         <div class="card news-card gradient-border hover-float">
                             <div class="d-flex">
@@ -318,20 +394,41 @@
                             </div>
                         </div>
                     </div>
+
+                    <% if (listCount % 3 == 0 && listCount < newsList.size()) { %>
+                        <div class="col-12 mb-3 ad-item list-ad">
+                            <div class="ad-container">
+                                <jsp:include page="_ad.jsp">
+                                    <jsp:param name="position" value="list_feed_<%= listCount/3 %>"/>
+                                    <jsp:param name="template" value="inFeed"/>
+                                </jsp:include>
+                            </div>
+                        </div>
+                    <% } %>
                 <% } %>
-            <% } else { %>
-                <div class="col-12">
-                    <div class="alert alert-info text-center" role="alert">
-                        暂无相关新闻
-                    </div>
-                </div>
-            <% } %>
-        </div>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- 内容下方广告 -->
+    <div class="ad-container mb-4">
+        <jsp:include page="_ad.jsp">
+            <jsp:param name="position" value="list_content_bottom"/>
+            <jsp:param name="template" value="inFeed"/>
+        </jsp:include>
     </div>
 </div>
 
 <!-- 使用统一的页脚 -->
 <jsp:include page="common/footer.jsp" />
+
+<!-- 底部固定悬浮广告 -->
+<div class="ad-container">
+    <jsp:include page="_ad.jsp">
+        <jsp:param name="position" value="list_bottom_float"/>
+        <jsp:param name="template" value="bottomBanner"/>
+    </jsp:include>
+</div>
 
 <!-- 返回顶部按钮 -->
 <button id="backToTop" class="back-to-top">
@@ -438,6 +535,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 初始状态隐藏按钮
     backToTopButton.style.display = 'none';
+});
+</script>
+
+<script src="${pageContext.request.contextPath}/js/userTracker.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const category = '<%= category %>'; // 当前分类
+        UserTracker.sendUserData(category, null);
 });
 </script>
 
