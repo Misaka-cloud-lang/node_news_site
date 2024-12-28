@@ -23,6 +23,9 @@ public class News {
     private boolean isTop;
     private String status;
     private String content;
+    private int comments;
+    private int shares;
+    private int readTime;
 
     // 构造函数
     public News() {}
@@ -184,6 +187,30 @@ public class News {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public int getComments() {
+        return comments;
+    }
+
+    public void setComments(int comments) {
+        this.comments = comments;
+    }
+
+    public int getShares() {
+        return shares;
+    }
+
+    public void setShares(int shares) {
+        this.shares = shares;
+    }
+
+    public int getReadTime() {
+        return readTime;
+    }
+
+    public void setReadTime(int readTime) {
+        this.readTime = readTime;
     }
 
     @Override

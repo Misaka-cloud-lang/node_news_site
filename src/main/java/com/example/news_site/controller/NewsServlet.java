@@ -52,49 +52,6 @@ public class NewsServlet extends HttpServlet {
         try {
             List<News> newsList = null;
 
-            // 获取地广告
-            // 头部广告（Logo或Banner）
-            List<Advertisement> headerAds = adDAO.getAdsByType("BANNER");
-            if (!headerAds.isEmpty()) {
-                request.setAttribute("headerAd", getRandomAd(headerAds));
-            }
-
-            // 侧边栏广告（浮动或弹窗）
-            List<Advertisement> sidebarAds = adDAO.getAdsByType("FLOATING");
-            if (!sidebarAds.isEmpty()) {
-                request.setAttribute("sidebarAd", getRandomAd(sidebarAds));
-            }
-
-            // 内容区广告
-            List<Advertisement> contentAds = adDAO.getAdsByType("LARGE_IMAGE");
-            if (!contentAds.isEmpty()) {
-                request.setAttribute("contentAd", getRandomAd(contentAds));
-            }
-
-            // 底部广告
-            List<Advertisement> footerAds = adDAO.getAdsByType("SCROLL_TEXT");
-            if (!footerAds.isEmpty()) {
-                request.setAttribute("footerAd", getRandomAd(footerAds));
-            }
-
-            // 新闻之间的广告
-            List<Advertisement> betweenAds = adDAO.getAdsByType("INTERSTITIAL");
-            if (!betweenAds.isEmpty()) {
-                request.setAttribute("betweenAd", getRandomAd(betweenAds));
-            }
-
-            // 覆盖广告
-            List<Advertisement> overlayAds = adDAO.getAdsByType("OVERLAY");
-            if (!overlayAds.isEmpty()) {
-                request.setAttribute("overlayAd", getRandomAd(overlayAds));
-            }
-
-            // 角落广告
-            List<Advertisement> cornerAds = adDAO.getAdsByType("STICKY");
-            if (!cornerAds.isEmpty()) {
-                request.setAttribute("cornerAd", getRandomAd(cornerAds));
-            }
-
             // 如果有搜索关键词，执行搜索功能
             if (queryKeyword != null && !queryKeyword.isEmpty()) {
                 System.out.println("开始搜索，关键词: " + queryKeyword);
@@ -117,12 +74,34 @@ public class NewsServlet extends HttpServlet {
 
             // 如果有新闻ID，显示新闻详情
             if (newsId != null) {
-                News news = newsDao.getNewsById(Integer.parseInt(newsId));
-                if (news != null) {
-                    request.setAttribute("news", news);
-                    request.getRequestDispatcher("/pages/newsDetail.jsp").forward(request, response);
-                } else {
-                    request.setAttribute("error", "新闻未找到！");
+                try {
+                    News news = newsDao.getNewsById(Integer.parseInt(newsId));
+                    if (news != null) {
+                        System.out.println("找到新闻: " + news.getTitle());  // 添加日志
+                        
+                        // 获取相关新闻
+                        List<News> relatedNews = newsDao.getNewsByCategory(news.getCategory());
+                        relatedNews.removeIf(n -> n.getId() == news.getId());
+                        if (relatedNews.size() > 4) {
+                            relatedNews = relatedNews.subList(0, 4);
+                        }
+                        
+                        // 设置属性
+                        request.setAttribute("news", news);
+                        request.setAttribute("relatedNews", relatedNews);
+                        
+                        // 转发前打印日志
+                        System.out.println("准备转发到新闻详情页面...");
+                        request.getRequestDispatcher("/pages/newsDetail.jsp").forward(request, response);
+                        System.out.println("转发完成");
+                    } else {
+                        System.out.println("未找到ID为 " + newsId + " 的新闻");  // 添加日志
+                        request.setAttribute("error", "新闻未找到！");
+                        request.getRequestDispatcher("/pages/error.jsp").forward(request, response);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("新闻ID格式错误: " + newsId);  // 添加日志
+                    request.setAttribute("error", "新闻ID格式错误！");
                     request.getRequestDispatcher("/pages/error.jsp").forward(request, response);
                 }
                 return;
@@ -147,14 +126,5 @@ public class NewsServlet extends HttpServlet {
             request.setAttribute("error", "服务器错误：" + e.getMessage());
             request.getRequestDispatcher("/pages/error.jsp").forward(request, response);
         }
-    }
-
-    // 从广告列表中随机选择一个广告
-    private Advertisement getRandomAd(List<Advertisement> ads) {
-        if (ads == null || ads.isEmpty()) {
-            return null;
-        }
-        int randomIndex = new Random().nextInt(ads.size());
-        return ads.get(randomIndex);
     }
 }

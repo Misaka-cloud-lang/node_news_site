@@ -20,6 +20,8 @@ import java.util.Set;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
+import java.time.LocalDate;
+import java.util.Random;
 
 public class NewsService {
     private NewsDAO newsDAO;
@@ -30,6 +32,8 @@ public class NewsService {
     private static Map<Integer, News> newsCache = new ConcurrentHashMap<>();
     private static long lastCacheUpdate = 0;
     private static final long CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
+
+    private Random random = new Random();
 
     public NewsService() {
         this.newsDAO = new NewsDAO();
@@ -53,14 +57,44 @@ public class NewsService {
 
     // 根据ID获取新闻
     public News getNewsById(int id) {
-        return newsCache.computeIfAbsent(id, k -> {
-            try {
-                return newsDAO.getNewsById(id);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+        try {
+            // 获取数据库连接
+            Connection conn = DBConnection.getConnection();
+            String sql = "SELECT * FROM news WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, id);
+            
+            ResultSet rs = stmt.executeQuery();
+            News news = null;
+            
+            if (rs.next()) {
+                news = new News();
+                news.setId(rs.getInt("id"));
+                news.setTitle(rs.getString("title"));
+                news.setContent(rs.getString("content"));
+                news.setCategory(rs.getString("category"));
+                news.setPublishTime(rs.getTimestamp("publish_time"));
+                news.setImage(rs.getString("image"));
+                news.setAuthor(rs.getString("author"));
+                news.setViews(rs.getInt("views"));
+                
+                // 打印调试信息
+                System.out.println("Found news with ID " + id + ": " + news.getTitle());
+            } else {
+                System.out.println("No news found with ID: " + id);
             }
-        });
+            
+            rs.close();
+            stmt.close();
+            conn.close();
+            
+            return news;
+            
+        } catch (SQLException e) {
+            System.err.println("Error fetching news with ID " + id + ": " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // 更新新闻
@@ -84,7 +118,11 @@ public class NewsService {
         // 从缓存获取
         return categoryCache.computeIfAbsent(category, k -> {
             try {
-                return newsDAO.getNewsByCategory(category);
+                List<News> newsList = newsDAO.getNewsByCategory(category);
+                for (News news : newsList) {
+                    generateRandomStats(news);
+                }
+                return newsList;
             } catch (Exception e) {
                 e.printStackTrace();
                 return new ArrayList<>();
@@ -437,5 +475,61 @@ public class NewsService {
         Collections.shuffle(allNews);
         // 返回指定数量的新闻
         return allNews.subList(0, Math.min(limit, allNews.size()));
+    }
+
+    // 生成随机统计数据
+    private void generateRandomStats(News news) {
+        // 阅读量：100-10000之间
+        news.setViews(100 + random.nextInt(9900));
+        
+        // 评论数：阅读量的1-5%
+        news.setComments(news.getViews() * (1 + random.nextInt(4)) / 100);
+        
+        // 分享数：阅读量的0.5-2%
+        news.setShares(news.getViews() * (1 + random.nextInt(3)) / 200);
+        
+        // 点赞数：阅读量的2-8%
+        news.setLikes(news.getViews() * (2 + random.nextInt(6)) / 100);
+        
+        // 预计阅读时间：2-10分钟
+        news.setReadTime(2 + random.nextInt(8));
+        
+        // 设置作者
+        String[] authors = {"张记者", "王编辑", "李观察", "刘分析", "周调查"};
+        news.setAuthor(authors[random.nextInt(authors.length)]);
+    }
+    
+    // 获取分类统计信息
+    public Map<String, Object> getCategoryStats(String category) {
+        Map<String, Object> stats = new HashMap<>();
+        
+        // 获取该分类下的所有新闻
+        List<News> newsList = getNewsByCategory(category);
+        
+        // 计算总阅读量
+        int totalViews = newsList.stream().mapToInt(News::getViews).sum();
+        
+        // 计算今日更新数量（随机生成1-20之间的数）
+        int todayUpdates = 1 + random.nextInt(19);
+        
+        // 格式化阅读量（比如：1.2k, 3.5k等）
+        String formattedViews = formatNumber(totalViews);
+        
+        stats.put("totalNews", newsList.size());
+        stats.put("totalViews", formattedViews);
+        stats.put("todayUpdates", todayUpdates);
+        
+        return stats;
+    }
+    
+    // 格式化数字
+    private String formatNumber(int number) {
+        if (number < 1000) {
+            return String.valueOf(number);
+        } else if (number < 1000000) {
+            return String.format("%.1fk", number / 1000.0);
+        } else {
+            return String.format("%.1fm", number / 1000000.0);
+        }
     }
 }

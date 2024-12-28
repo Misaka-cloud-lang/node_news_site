@@ -1,66 +1,38 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>系统错误</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background-color: #f5f5f5;
-        }
-        .error-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #d32f2f;
-            margin-bottom: 20px;
-        }
-        .error-details {
-            color: #666;
-            margin: 20px 0;
-            text-align: left;
-            padding: 10px;
-            background-color: #f8f8f8;
-            border-radius: 4px;
-        }
-        .back-link {
-            display: inline-block;
-            margin-top: 20px;
-            color: #1976d2;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>错误 - USST新闻网</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common.css">
 </head>
 <body>
-    <div class="error-container">
-        <h1>系统错误</h1>
-        <p>抱歉，系统处理您的请求时出现错误。</p>
-        <div class="error-details">
-            <p>错误类型：${pageContext.exception.getClass().getName()}</p>
-            <p>错误信息：${pageContext.exception.message}</p>
+    <jsp:include page="common/navbar.jsp" />
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <div class="error-page">
+                    <i class="bi bi-exclamation-circle text-danger" style="font-size: 4rem;"></i>
+                    <h2 class="mt-4">出错了！</h2>
+                    <p class="text-muted">
+                        <%= request.getAttribute("error") != null ? request.getAttribute("error") : "页面发生错误" %>
+                    </p>
+                    <div class="mt-4">
+                        <a href="<%= request.getAttribute("returnUrl") != null ? request.getAttribute("returnUrl") : request.getContextPath() + "/" %>" 
+                           class="btn btn-primary">
+                            <i class="bi bi-house-door me-2"></i>返回首页
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <a href="/" class="back-link">返回首页</a>
     </div>
-    <div class="container mt-4">
-        <!-- 添加一个小广告 -->
-        <div class="mt-4">
-            <jsp:include page="_ad.jsp">
-                <jsp:param name="position" value="content"/>
-                <jsp:param name="size" value="small"/>
-            </jsp:include>
-        </div>
-    </div>
+
+    <jsp:include page="common/footer.jsp" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> 

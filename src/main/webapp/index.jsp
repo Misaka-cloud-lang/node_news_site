@@ -301,32 +301,6 @@
             border-radius: 10px;
         }
 
-        /* ������ */
-        .category-card {
-            height: 200px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s ease;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .category-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .category-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .category-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
         /* 导航栏样式优化 */
         .navbar {
             background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
@@ -608,7 +582,7 @@
     </div>
 </section>
 
-<!-- 新闻分类 -->
+<!-- ���闻分类 -->
 <section class="container my-5">
     <h2 class="text-center mb-5">新闻分类</h2>
     <div class="row justify-content-center">
@@ -624,69 +598,87 @@
         </div>
         <div class="col-md-3 mb-4">
             <div class="card category-card text-center">
-                <div class="category-icon">🌏</div>
-                <h5 class="category-title">国际新闻</h5>
-                <a href="pages/newsList.jsp?category=国际" class="btn btn-outline-primary">浏览</a>
+                <div class="card-body">
+                    <div class="category-icon">🌏</div>
+                    <h5 class="category-title">国际新闻</h5>
+                    <a href="pages/newsList.jsp?category=国际" class="btn btn-outline-primary">浏览</a>
+                </div>
             </div>
         </div>
         <div class="col-md-3 mb-4">
             <div class="card category-card text-center">
-                <div class="category-icon">⚽</div>
-                <h5 class="category-title">体育新闻</h5>
-                <a href="pages/newsList.jsp?category=体育" class="btn btn-outline-primary">浏览</a>
+                <div class="card-body">
+                    <div class="category-icon">⚽</div>
+                    <h5 class="category-title">体育新闻</h5>
+                    <a href="pages/newsList.jsp?category=体育" class="btn btn-outline-primary">浏览</a>
+                </div>
             </div>
         </div>
         <div class="col-md-3 mb-4">
             <div class="card category-card text-center">
-                <div class="category-icon">💡</div>
-                <h5 class="category-title">科技新闻</h5>
-                <a href="pages/newsList.jsp?category=科技" class="btn btn-outline-primary">浏览</a>
+                <div class="card-body">
+                    <div class="category-icon">💡</div>
+                    <h5 class="category-title">科技新闻</h5>
+                    <a href="pages/newsList.jsp?category=科技" class="btn btn-outline-primary">浏览</a>
+                </div>
             </div>
         </div>
         
         <!-- 第二排 -->
         <div class="col-md-3 mb-4">
             <div class="card category-card text-center">
-                <div class="category-icon">🎬</div>
-                <h5 class="category-title">娱乐新闻</h5>
-                <a href="pages/newsList.jsp?category=娱乐" class="btn btn-outline-primary">浏览</a>
+                <div class="card-body">
+                    <div class="category-icon">🎬</div>
+                    <h5 class="category-title">娱乐新闻</h5>
+                    <a href="pages/newsList.jsp?category=娱乐" class="btn btn-outline-primary">浏览</a>
+                </div>
             </div>
         </div>
         <div class="col-md-3 mb-4">
             <div class="card category-card text-center">
-                <div class="category-icon">💰</div>
-                <h5 class="category-title">财经新闻</h5>
-                <a href="pages/newsList.jsp?category=财经" class="btn btn-outline-primary">浏览</a>
+                <div class="card-body">
+                    <div class="category-icon">💰</div>
+                    <h5 class="category-title">财经新闻</h5>
+                    <a href="pages/newsList.jsp?category=财经" class="btn btn-outline-primary">浏览</a>
+                </div>
             </div>
         </div>
         <div class="col-md-3 mb-4">
             <div class="card category-card text-center">
-                <div class="category-icon">🎖️</div>
-                <h5 class="category-title">军事新闻</h5>
-                <a href="pages/newsList.jsp?category=军事" class="btn btn-outline-primary">浏览</a>
+                <div class="card-body">
+                    <div class="category-icon">🎖️</div>
+                    <h5 class="category-title">军事新闻</h5>
+                    <a href="pages/newsList.jsp?category=军事" class="btn btn-outline-primary">浏览</a>
+                </div>
             </div>
         </div>
         <div class="col-md-3 mb-4">
             <div class="card category-card text-center">
-                <div class="category-icon">👥</div>
-                <h5 class="category-title">社会新闻</h5>
-                <a href="pages/newsList.jsp?category=社会" class="btn btn-outline-primary">浏览</a>
+                <div class="card-body">
+                    <div class="category-icon">👥</div>
+                    <h5 class="category-title">社会新闻</h5>
+                    <a href="pages/newsList.jsp?category=社会" class="btn btn-outline-primary">浏览</a>
+                </div>
             </div>
         </div>
 
         <!-- 第三排（居中显示最后两个） -->
         <div class="col-md-3 mb-4">
             <div class="card category-card text-center">
-                <div class="category-icon">📈</div>
-                <h5 class="category-title">股市新闻</h5>
-                <a href="pages/newsList.jsp?category=股市" class="btn btn-outline-primary">浏览</a>
+                <div class="card-body">
+                    <div class="category-icon">📈</div>
+                    <h5 class="category-title">股市新闻</h5>
+                    <a href="pages/newsList.jsp?category=股市" class="btn btn-outline-primary">浏览</a>
+                </div>
             </div>
         </div>
         <div class="col-md-3 mb-4">
             <div class="card category-card text-center">
-                <div class="category-icon">🏛</div>
-                <h5 class="category-title">美股新闻</h5>
-                <a href="pages/newsList.jsp?category=美股" class="btn btn-outline-primary">浏览</a>
+                <div class="card-body">
+                    <div class="category-icon">🏛</div>
+                    <h5 class="category-title">美股新闻</h5>
+                    <a href="pages/newsList.jsp?category=美股" class="btn btn-outline-primary">浏览</a>
+                </div>
             </div>
         </div>
     </div>
@@ -837,50 +829,8 @@
     <i class="bi bi-arrow-up"></i>
 </button>
 
-<!-- 页脚 -->
-<footer class="footer py-1">
-    <div class="container">
-        <div class="row g-0">
-            <!-- 左侧：关于我们 -->
-            <div class="col-lg-6 px-2">
-                <h6 class="border-bottom pb-1 mb-1" style="font-size: 1rem; font-weight: 600;">关于USST新闻网</h6>
-                <p style="font-size: 0.9rem; line-height: 1.4; margin-bottom: 0;">
-                    上海理工大学官方新闻门户网站<br>
-                    致力于提供及时、准确的校园资讯，打造全方位的信息服务平台<br>
-                    秉承"传播价值，服务师生"的理念，记录理工发展
-                </p>
-            </div>
-
-            <!-- 右侧：联系方式 -->
-            <div class="col-lg-6 px-2">
-                <h6 class="border-bottom pb-1 mb-1" style="font-size: 1rem; font-weight: 600;">联系我们</h6>
-                <ul class="list-unstyled mb-0" style="font-size: 0.9rem; line-height: 1.4;">
-                    <li><i class="bi bi-geo-alt"></i> 地址：上海市杨浦区军工路516号</li>
-                    <li><i class="bi bi-telephone"></i> 电话：021-12345678</li>
-                    <li><i class="bi bi-envelope"></i> 邮箱：news@usst.edu.cn</li>
-                    <li><i class="bi bi-clock"></i> 工作时间：周一至周五 9:00-17:00</li>
-                </ul>
-            </div>
-        </div>
-
-        <hr class="my-1" style="margin: 3px 0; opacity: 0.1;">
-
-        <!-- 版权信息 -->
-        <div class="row g-0 align-items-center">
-            <div class="col-md-6 text-center text-md-start">
-                <span style="font-size: 0.9rem;">&copy; 2024 上海理工大学新闻网 版权所有</span>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <span style="font-size: 0.9rem;">
-                    <a href="#" class="me-3">隐私政策</a>
-                    <a href="#" class="me-3">使用条款</a>
-                    <a href="#" class="me-3">网站地图</a>
-                    <a href="#">关于我们</a>
-                </span>
-            </div>
-        </div>
-    </div>
-</footer>
+<!-- 使用统一的页脚 -->
+<jsp:include page="pages/common/footer.jsp" />
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>

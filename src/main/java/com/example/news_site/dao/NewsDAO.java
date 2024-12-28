@@ -85,7 +85,7 @@ public class NewsDAO {
     // 根据ID获取新闻
     public News getNewsById(int id) {
         News news = null;
-        String sql = "SELECT id, title, description, content, image, category, source, publish_time, views FROM news WHERE id = ?";
+        String sql = "SELECT * FROM news WHERE id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -98,18 +98,37 @@ public class NewsDAO {
                 news.setId(rs.getInt("id"));
                 news.setTitle(rs.getString("title"));
                 news.setDescription(rs.getString("description"));
-                news.setContent(rs.getString("content"));
+                news.setContent(rs.getString("content_html"));
                 news.setImage(rs.getString("image"));
                 news.setCategory(rs.getString("category"));
+                news.setAuthor(rs.getString("author"));
                 news.setSource(rs.getString("source"));
                 news.setPublishTime(rs.getTimestamp("publish_time"));
                 news.setViews(rs.getInt("views"));
+                news.setLikes(rs.getInt("likes"));
+                
+                // 更新浏览量
+                updateViews(id);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            System.err.println("Error getting news by ID: " + id);
+            System.err.println("SQL Error: " + e.getMessage());
         }
         
         return news;
+    }
+
+    // 更新浏览量的方法
+    private void updateViews(int id) {
+        String sql = "UPDATE news SET views = views + 1 WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // 根据新闻分类返回同的颜色
@@ -448,7 +467,7 @@ public class NewsDAO {
         }
     }
 
-    // 添加批量插入方法
+    // 添加批量插入���法
     public int batchAddNews(List<News> newsList) throws SQLException {
         if (newsList == null || newsList.isEmpty()) {
             return 0;
@@ -481,7 +500,7 @@ public class NewsDAO {
                 }
             }
             
-            System.out.println("数据库中已存在 " + existingTitles.size() + " 条新闻");
+            System.out.println("��据库中已存在 " + existingTitles.size() + " 条新闻");
             
             // 过滤出需要插入的新闻
             List<News> newNewsList = new ArrayList<>();
