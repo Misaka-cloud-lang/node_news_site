@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 @WebFilter("/*")
 public class CustomFilter extends HttpFilter {
@@ -17,7 +18,11 @@ public class CustomFilter extends HttpFilter {
 
     @Override
     public void init(FilterConfig config) throws ServletException {
-        userID_dao = new UserID_DAO(DBConnection.getConnection());
+        try {
+            userID_dao = new UserID_DAO(DBConnection.getConnection());
+        } catch (SQLException e) {
+            throw new ServletException("Unable to initialize database",e);
+        }
     }
 
     @Override

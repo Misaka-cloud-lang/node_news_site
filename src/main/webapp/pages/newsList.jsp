@@ -386,7 +386,9 @@
                                                 <i class="bi bi-clock ms-2 me-1"></i><%= news.getReadTime() %>分钟
                                             </small>
                                         </div>
-                                        <a href="${pageContext.request.contextPath}/pages/newsDetail.jsp?id=<%= news.getId() %>" class="btn btn-primary btn-sm btn-3d">
+                                        <a href="${pageContext.request.contextPath}/pages/newsDetail.jsp?id=<%= news.getId() %>"
+                                           class="btn btn-primary btn-sm btn-3d"
+                                        onclick="UserTracker.sendUserData(${sessionScope.get("userId")},'<%=news.getCategory()%>','<%=news.getTags()%>')">
                                             阅读更多
                                         </a>
                                     </div>
@@ -542,7 +544,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const category = '<%= category %>'; // 当前分类
-        UserTracker.sendUserData(category, null);
+        UserTracker.sendUserData(${sessionScope.get("userId")},category, null);
 });
 </script>
 

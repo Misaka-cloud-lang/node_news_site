@@ -27,7 +27,7 @@ const UserTracker = {
     },
     
     // 发送用户数据
-    sendUserData: function(category, tags) {
+    sendUserData: function(userId, category, tags) {
         console.log('[UserTracker] 准备发送用户数据:', {
             category: category,
             tags: tags
@@ -35,7 +35,7 @@ const UserTracker = {
 
         // 构建URL参数
         const params = new URLSearchParams({
-            userId: '1',
+            userId: userId,
             tag: this.translateCategory(category),
             action: '1'
         });
@@ -46,6 +46,7 @@ const UserTracker = {
         // 发送请求，参数放在URL中
         fetch(url, {
             method: 'POST',
+            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }

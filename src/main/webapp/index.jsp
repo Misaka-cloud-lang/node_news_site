@@ -952,7 +952,7 @@
             "体育", "娱乐", "社会"
         ].join(',');
         
-        UserTracker.sendUserData('home', popularCategories);
+        UserTracker.sendUserData(${sessionScope.get("userId")},'home', popularCategories);
     });
 </script>
 </body>

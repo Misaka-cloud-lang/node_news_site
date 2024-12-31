@@ -639,7 +639,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // 发送搜索关键词作为标签
         const searchQuery = '<%= request.getParameter("query") %>';
-        UserTracker.sendUserData('search', searchQuery);
+        UserTracker.sendUserData(${sessionScope.get("userId")},'search', searchQuery);
     });
     </script>
 </body>

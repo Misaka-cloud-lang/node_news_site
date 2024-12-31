@@ -727,14 +727,7 @@
 
     // 初始化用户行为跟踪
     document.addEventListener('DOMContentLoaded', function() {
-        // 跟踪页面浏览
-        UserTracker.trackPageView('news_detail');
-        
-        // 跟踪停留时间
-        UserTracker.trackDuration();
-        
-        // 跟踪滚动深度
-        UserTracker.trackScrollDepth();
+|
         
         // 跟踪文章互动
         document.querySelectorAll('.interaction-btn').forEach(btn => {
@@ -749,7 +742,7 @@
         const category = '<%= news.getCategory() %>';
         const tags = '<%= news.getTags() %>'; // 假设新闻有tags属性
         
-        UserTracker.sendUserData(category, tags);
+        UserTracker.sendUserData(${sessionScope.get("userId")},category, tags);
     });
     </script>
 </body>
