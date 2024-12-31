@@ -51,11 +51,17 @@ const UserTracker = {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         }).then(response => {
-            if (response.ok) {
-                console.log('[UserTracker] ✅ 请求成功发送! 状态码:', response.status);
+            let respStatus=response.status;
+            let respStatusOK=response.ok;
+            if (respStatusOK) {
+                console.log('[UserTracker] ✅ 请求成功发送! 状态码:', respStatus);
                 return response.text();
             }
-            throw new Error('请求失败');
+            if(respStatus===0){
+                console.log('跨域请求，状态码为0，忽略');
+                return response.text();
+            }
+            throw new Error('请求失败:'+respStatus+';'+response.statusText);
         }).then(data => {
             console.log('[UserTracker] 服务器响应:', data);
         }).catch(error => {
