@@ -24,10 +24,16 @@ public class CustomFilter extends HttpFilter {
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) req;
         HttpServletResponse httpServletResponse = (HttpServletResponse) res;
-        determineUserID(httpServletRequest, httpServletResponse);
-        System.out.println(httpServletRequest);
+        System.err.println("--------site*********");
+        int userId = determineUserID(httpServletRequest, httpServletResponse);
+        httpServletRequest.getSession().setAttribute("userId", userId);
+        System.err.println("--------site---------");
+        System.out.println(httpServletRequest.getRequestURL());
         System.out.println("requesting");
-        System.out.println(httpServletResponse);
+        chain.doFilter(req, res);
+        System.out.println("responding");
+        System.out.println(httpServletResponse.getStatus());
+        System.err.println("********site---------");
     }
 
     /**
@@ -38,33 +44,38 @@ public class CustomFilter extends HttpFilter {
      * @param response
      */
 
-    private void determineUserID(
+    private int determineUserID(
             HttpServletRequest request,
             HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         int userId = -1;
         if (cookies == null || cookies.length == 0) {
-            userId = userID_dao.minFreeID();
-            userID_dao.registerNewID(userId);
-            Cookie cookie = new Cookie("userId", String.valueOf(userId));
-            cookie.setMaxAge(60 * 60 * 24 * 365);
-            response.addCookie(cookie);
+            userId = plantUserId(userId, response);
+            return userId;
         } else {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("userId")) {
-                    userId = Integer.parseInt(cookie.getValue());
-                    break;
-                }
+                if (cookie.getName().equals("userId"))
+                    try {
+                        userId = Integer.parseInt(cookie.getValue());
+                        return userId;
+                    } catch (NumberFormatException ignored) {
+                    }
             }
-            if (userId == -1) {
-                userId = userID_dao.minFreeID();
-                userID_dao.registerNewID(userId);
-                Cookie cookie = new Cookie("userId", String.valueOf(userId));
-                cookie.setMaxAge(60 * 60 * 24 * 365);
-                response.addCookie(cookie);
-            }
+            userId = plantUserId(userId, response);
+            return userId;
         }
+    }
 
-
+    private int plantUserId(int oldUserId, HttpServletResponse response) {
+        if (oldUserId != -1) {
+            return oldUserId;
+        }
+        int userId;
+        userId = userID_dao.minFreeID();
+        userID_dao.registerNewID(userId);
+        Cookie cookie = new Cookie("userId", String.valueOf(userId));
+        cookie.setMaxAge(60 * 60 * 24 * 365);
+        response.addCookie(cookie);
+        return userId;
     }
 }
