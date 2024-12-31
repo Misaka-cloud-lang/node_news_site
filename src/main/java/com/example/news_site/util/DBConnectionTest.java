@@ -12,9 +12,9 @@ public class DBConnectionTest {
 
             // 检查连接是否有效
             if (connection != null && !connection.isClosed()) {
-                System.out.println("数据库连接成功！");
+                System.out.println("Connection Successful!");
             } else {
-                System.out.println("数据库连接失败！");
+                System.out.println("Connection Failed!");
             }
 
             // 关闭连接
@@ -22,7 +22,7 @@ public class DBConnectionTest {
         } catch (SQLException e) {
             System.out.println("数据库连接失败: " + e.getMessage());
         } catch (Exception e) {
-            System.out.println("发生错误: " + e.getMessage());
+            System.out.println("Unknown Error occurred:\n" + e.getMessage());
         }
     }
 }
