@@ -6,7 +6,21 @@
         template = "inFeed";  // 设置默认值
     }
     String adServer = "112.124.63.147:8080";
-    String adUrl = String.format("http://%s/api/ad/news?userId=3", adServer);
+    
+    // 获取广告位置参数
+    int adLocation = 0;
+    if (application.getAttribute("currentAdIndex") == null) {
+        application.setAttribute("currentAdIndex", 0);
+    } else {
+        adLocation = (Integer)application.getAttribute("currentAdIndex");
+        // 递增广告位置索引
+        adLocation = adLocation + 1;
+        application.setAttribute("currentAdIndex", adLocation);
+    }
+    
+    // 构建广告URL，添加adLocation参数
+    String adUrl = String.format("http://%s/api/ad/news?userId=3&adLocation=%d", 
+                                adServer, adLocation);
 
     // 广告模板配置
     String width = "100%";
@@ -272,51 +286,34 @@ function checkAdContent(iframe) {
             try {
                 const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
                 if (!iframeContent || !iframeContent.body.innerHTML.trim()) {
-                    console.log('[Ad] 广告加载超时或内容为空');
-                    handleAdError(iframe);
+                    console.error('[Ad] 广告加载超时或内容为空');
+                    // 不显示占位内容，而是重试加载广告
+                    retryLoadAd(iframe);
                 }
             } catch (e) {
-                console.log('[Ad] 广告加载失败:', e);
-                handleAdError(iframe);
+                console.error('[Ad] 广告加载失败:', e);
+                retryLoadAd(iframe);
             }
-        }, 3000); // 3秒超时
-        
-        // 原有的检查
-        const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
-        if (!iframeContent || !iframeContent.body.innerHTML.trim()) {
-            handleAdError(iframe);
-        }
+        }, 3000);
     } catch (e) {
-        console.log('[Ad] 广告加载出错:', e);
-        handleAdError(iframe);
+        console.error('[Ad] 广告加载出错:', e);
+        retryLoadAd(iframe);
     }
 }
 
-function handleAdError(iframe, errorMessage) {
-    const wrapper = iframe.closest('.ad-wrapper');
-    if (wrapper) {
-        // 隐藏iframe
-        iframe.style.display = 'none';
-        
-        // 显示占位内容
-        const placeholder = wrapper.querySelector('.ad-placeholder');
-        if (placeholder) {
-            placeholder.style.display = 'flex';
-            
-            // 在占位内容中显示错误信息
-            const errorDiv = placeholder.querySelector('.error-message');
-            if (errorDiv) {
-                errorDiv.textContent = `加载失败: ${errorMessage}`;
-            }
-            
-            // 添加错误信息到控制台
-            console.warn('[Ad] 显示占位广告:', {
-                position: wrapper.id,
-                error: errorMessage,
-                url: iframe.src
-            });
-        }
-    }
+// 添加重试加载广告的函数
+function retryLoadAd(iframe) {
+    const currentLocation = parseInt(new URLSearchParams(iframe.src).get('adLocation'));
+    // 尝试加载下一个位置的广告
+    const newLocation = currentLocation + 1;
+    const newSrc = iframe.src.replace(`adLocation=${currentLocation}`, `adLocation=${newLocation}`);
+    iframe.src = newSrc;
+}
+
+// 修改错误处理函数
+function handleAdError(iframe) {
+    // 不再显示占位内容，而是重试加载
+    retryLoadAd(iframe);
 }
 
 // 关闭广告
@@ -341,4 +338,5 @@ function contactUs() {
     alert('请联系我们的广告部门\n电话：021-12345678\n邮箱：ad@example.com');
 }
 </script>
+
 
