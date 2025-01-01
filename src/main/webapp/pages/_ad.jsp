@@ -63,7 +63,7 @@
         <span>广告</span>
     </div>
     
-    <div class="ad-content">
+    <div class="ad-content" id="ad-main-div" onload="fetchAdHTML('<%=adUrl%>')">
         <iframe 
             src="<%= adUrl %>"
             width="<%= width %>" 
@@ -74,6 +74,19 @@
             onerror="handleAdError(this)">
         </iframe>
     </div>
+    <script>
+        function fetchAdHTML(url){
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const adContent = document.getElementById("ad-main-div");
+                    adContent.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
     
     <div class="ad-placeholder" style="display: none;">
         <div class="placeholder-content">
