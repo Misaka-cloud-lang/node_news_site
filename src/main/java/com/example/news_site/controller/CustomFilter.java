@@ -21,7 +21,7 @@ public class CustomFilter extends HttpFilter {
         try {
             userID_dao = new UserID_DAO(DBConnection.getConnection());
         } catch (SQLException e) {
-            throw new ServletException("Unable to initialize database",e);
+            throw new ServletException("Unable to initialize database", e);
         }
     }
 
@@ -55,20 +55,29 @@ public class CustomFilter extends HttpFilter {
         Cookie[] cookies = request.getCookies();
         int userId = -1;
         if (cookies == null || cookies.length == 0) {
-            userId = plantUserId(userId, response);
-            return userId;
-        } else {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("userId"))
-                    try {
-                        userId = Integer.parseInt(cookie.getValue());
-                        return userId;
-                    } catch (NumberFormatException ignored) {
-                    }
-            }
+            // new user
             userId = plantUserId(userId, response);
             return userId;
         }
+        for (Cookie cookie : cookies) {
+            if (!cookie.getName().equals("userId"))
+                //other irrelevant cookies
+                continue;
+            try {
+                userId = Integer.parseInt(cookie.getValue());
+                if (userID_dao.validateExistingID(userId))
+                    // verified old user
+                    return userId;
+                // if the cookie is invalid, break and generate a new one
+                break;
+            } catch (RuntimeException ignored) {
+                // if the cookie is invalid, break and generate a new one
+                break;
+            }
+        }
+        userId = plantUserId(userId, response);
+        return userId;
+
     }
 
     private int plantUserId(int oldUserId, HttpServletResponse response) {
